@@ -1,1484 +1,409 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Petualangan Kelipatan: Misi Menemukan KPK</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Fredoka & Plus Jakarta Sans -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Canvas Confetti -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        fredoka: ['Fredoka', 'sans-serif'],
-                        sans: ['Plus Jakarta Sans', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            purple: '#6C5CE7',
-                            pink: '#FD79A8',
-                            yellow: '#FDCB6E',
-                            green: '#00B894',
-                            blue: '#0984E3',
-                            dark: '#2D3436'
-                        }
-                    },
-                    animation: {
-                        'float': 'float 3s ease-in-out infinite',
-                        'bounce-slow': 'bounce 2s infinite',
-                        'pulse-glow': 'pulseGlow 2s infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-12px)' },
-                        },
-                        pulseGlow: {
-                            '0%, 100%': { boxShadow: '0 0 15px rgba(108, 92, 231, 0.4)' },
-                            '50%': { boxShadow: '0 0 30px rgba(108, 92, 231, 0.8)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
-            min-height: 100vh;
-            color: #f8fafc;
-            user-select: none;
-            overflow-x: hidden;
-        }
-
-        .heading-font {
-            font-family: 'Fredoka', sans-serif;
-        }
-
-        /* Glassmorphism Effect */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 1.5rem;
-        }
-
-        .glass-card-light {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(12px);
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            color: #1e293b;
-        }
-
-        /* Custom Buttons */
-        .btn-3d {
-            transition: all 0.15s ease;
-            position: relative;
-            top: 0;
-            box-shadow: 0 6px 0 rgba(0,0,0,0.25);
-        }
-        .btn-3d:active {
-            top: 4px;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.25);
-        }
-
-        .number-bubble {
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .number-bubble:hover {
-            transform: scale(1.08) translateY(-4px);
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #6C5CE7;
-            border-radius: 4px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Petualangan Kelipatan: Misi Menemukan KPK</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Quicksand', sans-serif;
+      background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+      min-height: 100vh;
+      color: #f8fafc;
+    }
+    .font-pop { font-family: 'Fredoka One', cursive; }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-option {
+      transition: all 0.2s ease;
+    }
+    .btn-option:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .tree-node {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: #fbbf24;
+      color: #1e1b4b;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+  </style>
 </head>
-<body class="flex flex-col min-h-screen text-slate-100">
+<body class="p-4 md:p-8 flex justify-center items-center">
 
-    <script>
-        class SoundEngine {
-            constructor() {
-                this.ctx = null;
-                this.soundOn = true;
-                this.musicOn = true;
-                this.bgmTimer = null;
-                this.isPlayingBGM = false;
-                this.step = 0;
-            }
-
-            init() {
-                if (!this.ctx) {
-                    const AudioContext = window.AudioContext || window.webkitAudioContext;
-                    this.ctx = new AudioContext();
-                }
-                if (this.ctx.state === 'suspended') {
-                    this.ctx.resume();
-                }
-            }
-
-            playClick() {
-                if (!this.soundOn) return;
-                this.init();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(600, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.08);
-            }
-
-            playCorrect() {
-                if (!this.soundOn) return;
-                this.init();
-                const notes = [523.25, 659.25, 783.99, 1046.50];
-                notes.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, this.ctx.currentTime + idx * 0.08);
-                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.08 + 0.2);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(this.ctx.currentTime + idx * 0.08);
-                    osc.stop(this.ctx.currentTime + idx * 0.08 + 0.2);
-                });
-            }
-
-            playWrong() {
-                if (!this.soundOn) return;
-                this.init();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(220, this.ctx.currentTime);
-                osc.frequency.setValueAtTime(160, this.ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.35);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.35);
-            }
-
-            playLevelWin() {
-                if (!this.soundOn) return;
-                this.init();
-                const melody = [392, 523, 659, 784, 880, 1046];
-                melody.forEach((f, i) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'square';
-                    osc.frequency.setValueAtTime(f, this.ctx.currentTime + i * 0.1);
-                    gain.gain.setValueAtTime(0.12, this.ctx.currentTime + i * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + i * 0.1 + 0.25);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(this.ctx.currentTime + i * 0.1);
-                    osc.stop(this.ctx.currentTime + i * 0.1 + 0.25);
-                });
-            }
-
-            playKick(time) {
-                if (!this.musicOn) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.frequency.setValueAtTime(120, time);
-                osc.frequency.exponentialRampToValueAtTime(0.01, time + 0.1);
-                gain.gain.setValueAtTime(0.2, time);
-                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.1);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(time);
-                osc.stop(time + 0.1);
-            }
-
-            playSnare(time) {
-                if (!this.musicOn) return;
-                const bufferSize = this.ctx.sampleRate * 0.08;
-                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = Math.random() * 2 - 1;
-                }
-                const noise = this.ctx.createBufferSource();
-                noise.buffer = buffer;
-                const filter = this.ctx.createBiquadFilter();
-                filter.type = 'highpass';
-                filter.frequency.value = 1200;
-                const gain = this.ctx.createGain();
-                gain.gain.setValueAtTime(0.08, time);
-                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.08);
-
-                noise.connect(filter);
-                filter.connect(gain);
-                gain.connect(this.ctx.destination);
-                noise.start(time);
-                noise.stop(time + 0.08);
-            }
-
-            playHiHat(time) {
-                if (!this.musicOn) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(7000, time);
-                gain.gain.setValueAtTime(0.02, time);
-                gain.gain.exponentialRampToValueAtTime(0.001, time + 0.03);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(time);
-                osc.stop(time + 0.03);
-            }
-
-            playNote(freq, type, duration, vol, time) {
-                if (!this.musicOn || !freq) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = type;
-                osc.frequency.setValueAtTime(freq, time);
-                gain.gain.setValueAtTime(vol, time);
-                gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start(time);
-                osc.stop(time + duration);
-            }
-
-            startBGM() {
-                if (!this.musicOn || this.isPlayingBGM) return;
-                this.init();
-                this.isPlayingBGM = true;
-                this.step = 0;
-
-                const bassSeq = [
-                    130.81, null, 130.81, null, 130.81, null, 261.63, null,
-                    98.00,  null, 98.00,  null, 98.00,  null, 196.00, null,
-                    110.00, null, 110.00, null, 110.00, null, 220.00, null,
-                    87.31,  null, 87.31,  null, 87.31,  null, 174.61, null
-                ];
-
-                const melodySeq = [
-                    523.25, 659.25, 783.99, null,   659.25, 523.25, 783.99, null,
-                    392.00, 493.88, 587.33, null,   493.88, 392.00, 587.33, null,
-                    440.00, 523.25, 659.25, null,   523.25, 440.00, 659.25, null,
-                    349.23, 440.00, 523.25, 659.25, 783.99, null,   659.25, 523.25
-                ];
-
-                const stepDuration = 135;
-
-                const playLoop = () => {
-                    if (!this.musicOn || !this.isPlayingBGM) return;
-                    const now = this.ctx.currentTime + 0.01;
-
-                    if (this.step % 4 === 0 || this.step % 8 === 6) {
-                        this.playKick(now);
-                    }
-                    if (this.step % 8 === 4) {
-                        this.playSnare(now);
-                    }
-                    this.playHiHat(now);
-
-                    if (bassSeq[this.step]) {
-                        this.playNote(bassSeq[this.step], 'triangle', 0.15, 0.07, now);
-                    }
-
-                    if (melodySeq[this.step]) {
-                        this.playNote(melodySeq[this.step], 'sine', 0.18, 0.045, now);
-                    }
-
-                    this.step = (this.step + 1) % 32;
-                    this.bgmTimer = setTimeout(playLoop, stepDuration);
-                };
-
-                playLoop();
-            }
-
-            stopBGM() {
-                this.isPlayingBGM = false;
-                if (this.bgmTimer) clearTimeout(this.bgmTimer);
-            }
-
-            toggleMusic() {
-                this.musicOn = !this.musicOn;
-                if (this.musicOn) {
-                    this.startBGM();
-                } else {
-                    this.stopBGM();
-                }
-                return this.musicOn;
-            }
-
-            toggleSound() {
-                this.soundOn = !this.soundOn;
-                return this.soundOn;
-            }
-        }
-
-        const sounds = new SoundEngine();
-    </script>
-
-    <header class="w-full bg-slate-900/60 backdrop-blur-md border-b border-white/10 sticky top-0 z-40 px-4 py-3">
-        <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-xl font-bold shadow-lg shadow-indigo-500/30">
-                    <i class="fa-solid font-fredoka">KPK</i>
-                </div>
-                <div>
-                    <h1 class="heading-font text-lg md:text-xl font-bold text-amber-300 leading-none">PETUALANGAN KELIPATAN</h1>
-                    <p class="text-xs text-indigo-200">Misi Menemukan KPK Kelas 5 SD</p>
-                </div>
-            </div>
-
-            <div id="hud-stats" class="hidden flex items-center space-x-4 bg-slate-800/80 px-4 py-2 rounded-2xl border border-white/10">
-                <div class="flex items-center space-x-1">
-                    <span class="text-xs font-semibold text-slate-300 mr-1">Nyawa:</span>
-                    <div id="lives-container" class="flex space-x-1 text-red-500 text-lg">
-                        <i class="fa-solid fa-heart animate-pulse"></i>
-                        <i class="fa-solid fa-heart animate-pulse"></i>
-                        <i class="fa-solid fa-heart animate-pulse"></i>
-                    </div>
-                </div>
-
-                <div class="h-6 w-px bg-slate-600"></div>
-
-                <div class="flex items-center space-x-2">
-                    <i class="fa-solid fa-star text-amber-400 text-lg"></i>
-                    <span id="score-text" class="heading-font text-xl font-bold text-amber-300">0</span>
-                    <span class="text-xs text-amber-200">Poin</span>
-                </div>
-
-                <div class="hidden sm:flex items-center space-x-2 bg-indigo-900/50 px-3 py-1 rounded-xl border border-indigo-400/30">
-                    <i class="fa-solid fa-user-astronaut text-indigo-300"></i>
-                    <span id="hud-player-name" class="text-xs font-bold text-indigo-200 truncate max-w-[100px]">Petualang</span>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-2">
-                <button id="btn-toggle-music" onclick="toggleMusicUI()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition text-sm flex items-center space-x-1.5 border border-white/10">
-                    <i id="icon-music" class="fa-solid fa-music text-emerald-400"></i>
-                    <span class="hidden md:inline text-xs font-semibold">Musik Pop</span>
-                </button>
-                <button id="btn-toggle-sound" onclick="toggleSoundUI()" class="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 transition text-sm flex items-center space-x-1.5 border border-white/10">
-                    <i id="icon-sound" class="fa-solid fa-volume-high text-amber-400"></i>
-                    <span class="hidden md:inline text-xs font-semibold">Efek</span>
-                </button>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6 flex flex-col justify-center">
-
-        <section id="view-intro" class="flex flex-col items-center justify-center text-center my-auto py-8">
-            <div class="relative mb-6">
-                <div class="absolute -inset-4 bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 rounded-full blur-2xl opacity-50 animate-pulse"></div>
-                <div class="relative w-32 h-32 md:w-40 md:h-40 bg-gradient-to-tr from-indigo-600 to-purple-500 rounded-3xl p-4 flex items-center justify-center border-4 border-amber-300 shadow-2xl animate-float">
-                    <span class="heading-font text-6xl md:text-7xl font-extrabold text-amber-300 drop-shadow-md">KPK</span>
-                </div>
-            </div>
-
-            <h2 class="heading-font text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-pink-300 to-purple-200 mb-2">
-                PETUALANGAN KELIPATAN
-            </h2>
-            <p class="heading-font text-xl md:text-2xl text-indigo-200 mb-2">Misi Menemukan KPK (Soal Otomatis & Tanpa Batas!)</p>
-            <p class="text-slate-300 max-w-lg mb-8 text-sm md:text-base">
-                Jelajahi Kerajaan Kelipatan, Hutan Kelipatan Persekutuan, hingga Istana KPK dengan soal acak tak terbatas yang selalu baru setiap dimainkan!
-            </p>
-
-            <button onclick="goToNameInput()" class="btn-3d px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xl rounded-2xl flex items-center space-x-3 shadow-lg border-2 border-emerald-300/40">
-                <span>MULAI PETUALANGAN</span>
-                <i class="fa-solid fa-circle-play text-2xl"></i>
-            </button>
-        </section>
-
-        <section id="view-name-input" class="hidden max-w-md mx-auto w-full glass-card p-6 md:p-8 rounded-3xl text-center shadow-2xl my-auto">
-            <div class="w-16 h-16 bg-indigo-500/30 text-indigo-300 rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl border border-indigo-400/30">
-                <i class="fa-solid fa-user-astronaut"></i>
-            </div>
-            <h3 class="heading-font text-2xl font-bold text-amber-300 mb-2">Halo, Petualang!</h3>
-            <p class="text-sm text-slate-200 mb-6">Siapa nama lengkapmu sebelum kita memulai misi?</p>
-
-            <div class="mb-6 text-left">
-                <label for="player-name-input" class="block text-xs font-semibold text-indigo-200 mb-2 uppercase tracking-wider">Nama Lengkap Siswa:</label>
-                <input type="text" id="player-name-input" placeholder="Masukkan nama lengkapmu..." class="w-full px-4 py-3.5 rounded-xl bg-slate-900/80 border-2 border-indigo-400/50 text-white placeholder-slate-400 focus:outline-none focus:border-amber-400 transition font-medium text-base">
-                <p id="name-error" class="hidden text-xs text-red-400 mt-2 font-medium"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Mohon isi nama lengkapmu dulu ya!</p>
-            </div>
-
-            <button onclick="submitPlayerName()" class="btn-3d w-full py-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold text-lg rounded-xl flex items-center justify-center space-x-2 shadow-lg">
-                <span>MULAI MISI</span>
-                <i class="fa-solid fa-rocket text-xl"></i>
-            </button>
-        </section>
-
-        <section id="view-map" class="hidden flex flex-col my-auto">
-            <div class="text-center mb-8">
-                <h2 class="heading-font text-3xl font-extrabold text-amber-300">PETA PETUALANGAN</h2>
-                <p class="text-sm text-indigo-200">Pilih level misi yang terbuka untuk melanjutkan petualanganmu!</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto w-full">
-                <!-- Mission 1 Card -->
-                <div id="card-misi-1" class="glass-card p-6 flex flex-col justify-between border-2 border-emerald-400/40 relative overflow-hidden group hover:border-emerald-400 transition">
-                    <div class="absolute -right-4 -top-4 text-emerald-500/10 text-8xl font-black">1</div>
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 rounded-full text-xs font-bold">MISI 1</span>
-                            <i class="fa-solid fa-crown text-2xl text-emerald-400"></i>
-                        </div>
-                        <h3 class="heading-font text-xl font-bold text-white mb-2">Kerajaan Kelipatan</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-4">
-                            Pahami konsep kelipatan bilangan dan tangkap semua angka kelipatan yang tepat!
-                        </p>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between text-xs text-slate-300 mb-3">
-                            <span>Status:</span>
-                            <span id="status-misi-1" class="font-bold text-emerald-400">Tersedia</span>
-                        </div>
-                        <button onclick="startMission(1)" class="btn-3d w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm flex items-center justify-center space-x-2">
-                            <span>JELAJAHI MISI 1</span>
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Mission 2 Card -->
-                <div id="card-misi-2" class="glass-card p-6 flex flex-col justify-between border-2 border-slate-700 opacity-60 relative overflow-hidden transition">
-                    <div class="absolute -right-4 -top-4 text-purple-500/10 text-8xl font-black">2</div>
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="px-3 py-1 bg-purple-500/20 text-purple-300 border border-purple-400/30 rounded-full text-xs font-bold">MISI 2</span>
-                            <i id="icon-misi-2" class="fa-solid fa-lock text-2xl text-slate-400"></i>
-                        </div>
-                        <h3 class="heading-font text-xl font-bold text-white mb-2">Hutan Kelipatan Persekutuan</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-4">
-                            Temukan angka kelipatan kembar yang dimiliki oleh dua bilangan!
-                        </p>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between text-xs text-slate-300 mb-3">
-                            <span>Status:</span>
-                            <span id="status-misi-2" class="font-bold text-slate-400">Terkunci</span>
-                        </div>
-                        <button id="btn-misi-2" disabled onclick="startMission(2)" class="btn-3d w-full py-3 bg-slate-700 text-slate-400 font-bold rounded-xl text-sm flex items-center justify-center space-x-2 cursor-not-allowed">
-                            <span>TERKUNCI</span>
-                            <i class="fa-solid fa-lock"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Mission 3 Card -->
-                <div id="card-misi-3" class="glass-card p-6 flex flex-col justify-between border-2 border-slate-700 opacity-60 relative overflow-hidden transition">
-                    <div class="absolute -right-4 -top-4 text-amber-500/10 text-8xl font-black">3</div>
-                    <div>
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="px-3 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/30 rounded-full text-xs font-bold">MISI 3</span>
-                            <i id="icon-misi-3" class="fa-solid fa-lock text-2xl text-slate-400"></i>
-                        </div>
-                        <h3 class="heading-font text-xl font-bold text-white mb-2">Istana KPK</h3>
-                        <p class="text-xs text-slate-300 leading-relaxed mb-4">
-                            Uji kemampuanmu berburu Kelipatan Persekutuan Terkecil (KPK)!
-                        </p>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between text-xs text-slate-300 mb-3">
-                            <span>Status:</span>
-                            <span id="status-misi-3" class="font-bold text-slate-400">Terkunci</span>
-                        </div>
-                        <button id="btn-misi-3" disabled onclick="startMission(3)" class="btn-3d w-full py-3 bg-slate-700 text-slate-400 font-bold rounded-xl text-sm flex items-center justify-center space-x-2 cursor-not-allowed">
-                            <span>TERKUNCI</span>
-                            <i class="fa-solid fa-lock"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-gameplay" class="hidden flex flex-col space-y-6 my-auto">
-            <div id="edu-banner" class="glass-card p-5 rounded-2xl border-l-4 border-l-amber-400">
-                <div class="flex items-start space-x-3">
-                    <div class="p-2.5 bg-amber-400/20 rounded-xl text-amber-300 text-xl flex-shrink-0">
-                        <i class="fa-solid fa-lightbulb"></i>
-                    </div>
-                    <div>
-                        <h4 id="edu-title" class="heading-font font-bold text-amber-300 text-base md:text-lg">Konsep Matematika</h4>
-                        <p id="edu-desc" class="text-xs md:text-sm text-slate-200 leading-relaxed mt-1"></p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-card p-6 md:p-8 rounded-3xl relative shadow-2xl">
-                <div class="flex flex-wrap items-center justify-between border-b border-white/10 pb-4 mb-6 gap-2">
-                    <div class="flex items-center space-x-3">
-                        <span id="subgame-badge" class="px-3 py-1 bg-indigo-500/30 text-indigo-300 rounded-lg text-xs font-bold border border-indigo-400/30">
-                            Subgame 1
-                        </span>
-                        <h3 id="subgame-title" class="heading-font text-xl md:text-2xl font-bold text-white">
-                            Judul Subgame
-                        </h3>
-                    </div>
-                    <span id="subgame-progress" class="text-xs font-bold text-slate-400 bg-slate-800/80 px-3 py-1.5 rounded-xl border border-white/10">
-                        Soal 1 / 2
-                    </span>
-                </div>
-
-                <div id="gameplay-area" class="min-h-[280px] flex flex-col justify-center items-center">
-                    <!-- Dynamic Subgame Content Injected via JS -->
-                </div>
-
-                <div id="feedback-box" class="hidden mt-6 p-4 rounded-2xl flex items-start space-x-3 transition-all animate-bounce-slow">
-                    <i id="feedback-icon" class="text-2xl"></i>
-                    <div>
-                        <h5 id="feedback-title" class="heading-font font-bold text-base"></h5>
-                        <p id="feedback-msg" class="text-xs md:text-sm font-medium mt-0.5"></p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-game-over" class="hidden max-w-md mx-auto w-full glass-card p-8 rounded-3xl text-center my-auto">
-            <div class="w-20 h-20 bg-red-500/20 border-2 border-red-400 text-red-400 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">
-                <i class="fa-solid fa-heart-crack"></i>
-            </div>
-            <h3 class="heading-font text-2xl font-bold text-white mb-2">Kehabisan Nyawa!</h3>
-            <p class="text-sm text-slate-300 mb-6">
-                Jangan menyerah, Petualang! Matematika butuh latihan dan ketelitian. Kamu pasti bisa lebih baik lagi!
-            </p>
-            <button onclick="retryCurrentMission()" class="btn-3d w-full py-3.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-400 hover:to-orange-500 text-white font-bold text-lg rounded-xl flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-rotate-right"></i>
-                <span>COBA LAGI (SOAL BARU)</span>
-            </button>
-        </section>
-
-        <section id="view-results" class="hidden max-w-2xl mx-auto w-full glass-card p-6 md:p-8 rounded-3xl text-center my-auto">
-            <div class="inline-block px-4 py-1.5 bg-amber-400/20 text-amber-300 rounded-full border border-amber-400/40 text-xs font-bold uppercase tracking-wider mb-3">
-                🎉 PETUALANGAN SELESAI 🎉
-            </div>
-
-            <h2 class="heading-font text-3xl md:text-4xl font-extrabold text-white mb-1">
-                SELAMAT, <span id="res-player-name" class="text-amber-300">Siswa</span>!
-            </h2>
-            <p class="text-sm text-slate-300 mb-6">Kamu telah berhasil menyelesaikan semua misi matematika!</p>
-
-            <div class="glass-card-light p-5 rounded-2xl mb-6 shadow-xl border border-amber-300/50">
-                <div id="badge-icon-box" class="text-5xl mb-2 text-amber-500">🏆</div>
-                <h4 id="res-badge-title" class="heading-font text-2xl font-bold text-slate-800">Ahli KPK</h4>
-                <p id="res-badge-desc" class="text-xs text-slate-600 mt-1 font-medium">Luar biasa! Pemahaman matematikamu sangat tajam!</p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-white/10">
-                    <span class="text-xs text-slate-400 block mb-1">Skor Akhir</span>
-                    <span id="res-total-score" class="heading-font text-xl font-bold text-amber-300">0</span>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-white/10">
-                    <span class="text-xs text-slate-400 block mb-1">Benar</span>
-                    <span id="res-correct" class="heading-font text-xl font-bold text-emerald-400">0</span>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-white/10">
-                    <span class="text-xs text-slate-400 block mb-1">Salah</span>
-                    <span id="res-wrong" class="heading-font text-xl font-bold text-red-400">0</span>
-                </div>
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-white/10">
-                    <span class="text-xs text-slate-400 block mb-1">Akurasi</span>
-                    <span id="res-accuracy" class="heading-font text-xl font-bold text-cyan-300">0%</span>
-                </div>
-            </div>
-
-            <div class="bg-slate-900/80 p-4 rounded-2xl border border-white/10 mb-6 text-left">
-                <h5 class="heading-font font-bold text-sm text-indigo-200 mb-2 flex items-center justify-between">
-                    <span><i class="fa-solid fa-file-export mr-2 text-indigo-400"></i>Laporan Nilai untuk Guru</span>
-                    <span class="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-400/30">Otomatis Terhubung</span>
-                </h5>
-                <p class="text-xs text-slate-300 mb-3">Klik tombol di bawah untuk mengunduh file Excel atau mengirim nilai langsung ke Google Sheets & Email Guru.</p>
-                
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="exportToCSV()" class="btn-3d px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center space-x-2">
-                        <i class="fa-solid fa-file-excel text-base"></i>
-                        <span>Unduh Excel (.csv)</span>
-                    </button>
-                    <button onclick="copyFormattedReport()" class="btn-3d px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center space-x-2">
-                        <i class="fa-solid fa-copy text-base"></i>
-                        <span>Salin Ringkasan</span>
-                    </button>
-                    <button onclick="openWebhookModal()" class="btn-3d px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white rounded-xl text-xs font-bold flex items-center space-x-2">
-                        <i class="fa-solid fa-paper-plane text-base"></i>
-                        <span>Kirim ke Google Sheets Guru</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-center space-x-4">
-                <button onclick="resetGame()" class="btn-3d px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-400 hover:to-purple-500 text-white font-bold rounded-xl text-sm flex items-center space-x-2">
-                    <i class="fa-solid fa-rotate-right"></i>
-                    <span>MAIN LAGI (SOAL ACAK BARU)</span>
-                </button>
-            </div>
-        </section>
-
-    </main>
-
-    <div id="modal-webhook" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="glass-card max-w-lg w-full p-6 rounded-3xl border border-white/20 relative">
-            <button onclick="closeWebhookModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white text-xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <h4 class="heading-font text-xl font-bold text-amber-300 mb-2 flex items-center space-x-2">
-                <i class="fa-solid fa-sheet-plastic text-emerald-400"></i>
-                <span>Kirim Nilai ke Google Sheets Guru</span>
-            </h4>
-            <p class="text-xs text-slate-300 mb-4">
-                Klik tombol "Kirim Sekarang" di bawah ini untuk mengirimkan nilai permainan langsung ke spreadsheet dan email guru.
-            </p>
-
-            <div class="space-y-3 mb-5">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">URL Webhook Google Sheets Guru:</label>
-                    <input type="text" id="webhook-url-input" value="https://script.google.com/macros/s/AKfycbyd7dJ8LFa6cklLMWq2wUw6XtOShkY0XMgGgt264u0UF3PS-_XJa9_9cbeNPRs-AWgX/exec" class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-emerald-400 font-mono focus:outline-none focus:border-indigo-400" readonly>
-                    <p class="text-[11px] text-emerald-400 mt-1"><i class="fa-solid fa-circle-check"></i> URL Google Apps Script Guru Sudah Terhubung!</p>
-                </div>
-            </div>
-
-            <div class="flex justify-end space-x-3">
-                <button onclick="closeWebhookModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-slate-800 text-slate-300 hover:bg-slate-700">Batal</button>
-                <button id="btn-submit-sheet" onclick="submitWebhookData()" class="px-5 py-2.5 rounded-xl text-xs font-bold bg-purple-600 text-white hover:bg-purple-500 flex items-center space-x-2 shadow-lg">
-                    <i class="fa-solid fa-paper-plane"></i>
-                    <span>Kirim Sekarang</span>
-                </button>
-            </div>
-        </div>
+  <div id="app" class="w-full max-w-3xl glass-card rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+    
+    <!-- HEADER SKOR & PROGRESS -->
+    <div id="header-stats" class="hidden flex justify-between items-center border-b border-white/20 pb-4 mb-6">
+      <div>
+        <span class="text-xs uppercase tracking-wider text-indigo-200">Siswa</span>
+        <h3 id="player-display" class="font-pop text-lg text-amber-300">Siswa</h3>
+      </div>
+      <div class="text-right">
+        <span class="text-xs uppercase tracking-wider text-indigo-200">Total Skor</span>
+        <div id="score-display" class="font-pop text-2xl text-emerald-400">0</div>
+      </div>
     </div>
 
-    <script>
-        const gameState = {
-            playerName: '',
-            score: 0,
-            lives: 3,
-            currentMission: 1,
-            unlockedMission: 1,
-            subgameIndex: 0,
-            correctAnswers: 0,
-            wrongAnswers: 0,
-            startTime: null,
-            endTime: null,
-            missionScores: { 1: 0, 2: 0, 3: 0 }
-        };
+    <!-- SCREEN 1: LOGIN -->
+    <div id="screen-login" class="text-center space-y-6">
+      <div class="inline-block p-4 bg-amber-400 text-indigo-950 rounded-full font-pop text-4xl shadow-lg mb-2">
+        🚀
+      </div>
+      <h1 class="font-pop text-3xl md:text-5xl text-amber-300 tracking-wide drop-shadow-md">
+        Petualangan Kelipatan
+      </h1>
+      <p class="text-indigo-100 text-sm md:text-base max-w-md mx-auto">
+        Misi Rahasia Menemukan KPK dengan Pohon Faktor dan Kelipatan Persekutuan!
+      </p>
 
-        function getGCD(a, b) {
-            return b === 0 ? a : getGCD(b, a % b);
-        }
+      <div class="space-y-4 max-w-sm mx-auto pt-4">
+        <input id="input-nama" type="text" placeholder="Masukkan Nama Lengkapmu..." 
+          class="w-full px-5 py-3 rounded-2xl bg-white/20 border border-white/30 text-white placeholder-indigo-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center font-bold text-lg" />
+        <button onclick="startGame()" 
+          class="w-full py-4 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-indigo-950 font-pop text-xl rounded-2xl shadow-xl transition transform active:scale-95">
+          Mulai Petualangan! 🎮
+        </button>
+      </div>
+    </div>
 
-        function getLCM(a, b) {
-            return (a * b) / getGCD(a, b);
-        }
+    <!-- SCREEN 2: GAMEPLAY -->
+    <div id="screen-game" class="hidden space-y-6">
+      <div class="flex justify-between items-center text-sm font-semibold text-indigo-200">
+        <span id="mission-title" class="bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-400/30">Misi 1</span>
+        <span id="question-tracker">Soal 1 / 5</span>
+      </div>
 
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
+      <!-- AREA SOAL -->
+      <div class="bg-indigo-950/50 p-6 rounded-2xl border border-white/10 space-y-4">
+        <div id="question-text" class="text-lg md:text-xl font-bold text-white text-center leading-relaxed">
+          <!-- Soal dimasukkan via JS -->
+        </div>
+        
+        <!-- POHON FAKTOR CONTAINER (Jika Misi 3) -->
+        <div id="tree-container" class="hidden flex-col items-center justify-center p-4 bg-white/5 rounded-xl space-y-2">
+          <!-- Render Visual Pohon Faktor -->
+        </div>
+      </div>
 
-        function shuffleArray(arr) {
-            return [...arr].sort(() => Math.random() - 0.5);
-        }
+      <!-- OPTIONS / INPUT -->
+      <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Pilihan jawaban dirender JS -->
+      </div>
 
-        function showView(viewId) {
-            const views = ['view-intro', 'view-name-input', 'view-map', 'view-gameplay', 'view-game-over', 'view-results'];
-            views.forEach(v => {
-                const el = document.getElementById(v);
-                if (el) el.classList.add('hidden');
+      <!-- FEEDBACK MODAL/BOX (Tampil SETELAH menjawab) -->
+      <div id="feedback-box" class="hidden p-4 rounded-2xl text-center space-y-3">
+        <div id="feedback-title" class="font-pop text-xl"></div>
+        <p id="feedback-explain" class="text-sm text-indigo-100"></p>
+        <button id="btn-next" onclick="nextQuestion()" 
+          class="px-6 py-2 bg-amber-400 text-indigo-950 font-pop rounded-xl hover:bg-amber-300 transition">
+          Lanjut Soal Berikutnya ➔
+        </button>
+      </div>
+    </div>
+
+    <!-- SCREEN 3: RESULT -->
+    <div id="screen-result" class="hidden text-center space-y-6">
+      <div class="text-5xl">🏆</div>
+      <h2 class="font-pop text-3xl text-amber-300">Misi Selesai!</h2>
+      <p id="result-nama" class="text-xl font-bold text-white"></p>
+      
+      <div class="grid grid-cols-2 gap-4 max-w-sm mx-auto bg-white/10 p-4 rounded-2xl border border-white/20">
+        <div>
+          <span class="text-xs text-indigo-200 block">Total Skor</span>
+          <span id="final-score" class="font-pop text-3xl text-emerald-400">0</span>
+        </div>
+        <div>
+          <span class="text-xs text-indigo-200 block">Akurasi Jawaban</span>
+          <span id="final-accuracy" class="font-pop text-3xl text-amber-300">0%</span>
+        </div>
+      </div>
+
+      <div id="send-status" class="text-sm text-indigo-200 animate-pulse">
+        Mengirim hasil ke guru...
+      </div>
+
+      <button onclick="resetGame()" 
+        class="px-8 py-3 bg-gradient-to-r from-emerald-400 to-teal-500 text-indigo-950 font-pop text-lg rounded-2xl shadow-lg hover:from-emerald-300 hover:to-teal-400 transition">
+        🔄 Main Lagi (Soal Baru)
+      </button>
+    </div>
+
+  </div>
+
+  <script>
+    // URL Webhook Apps Script
+    const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzVgiP9hOOjgXjFe4DJVMcg9plcv9yxREGRJJhe4smomIt8px5Po_a541eFPZxtIonX/exec";
+
+    let state = {
+      nama: "",
+      totalSkor: 0,
+      jawabanBenar: 0,
+      jawabanSalah: 0,
+      skorM1: 0,
+      skorM2: 0,
+      skorM3: 0,
+      misiAktif: 1,
+      indeksSoal: 0,
+      daftarSoal: []
+    };
+
+    // Helper Matematika
+    const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+    const lcm = (a, b) => (a * b) / gcd(a, b);
+    const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    function startGame() {
+      const inputNama = document.getElementById("input-nama").value.trim();
+      if (!inputNama) return alert("Masukkan namamu dulu ya!");
+      
+      state.nama = inputNama;
+      state.totalSkor = 0;
+      state.jawabanBenar = 0;
+      state.jawabanSalah = 0;
+      state.skorM1 = 0;
+      state.skorM2 = 0;
+      state.skorM3 = 0;
+      state.misiAktif = 1;
+
+      document.getElementById("player-display").innerText = state.nama;
+      document.getElementById("score-display").innerText = "0";
+      
+      document.getElementById("screen-login").classList.add("hidden");
+      document.getElementById("header-stats").classList.remove("hidden");
+      document.getElementById("screen-game").classList.remove("hidden");
+
+      generateMissionQuestions();
+    }
+
+    // Generator Soal Dinamis & Tak Hingga
+    function generateMissionQuestions() {
+      state.indeksSoal = 0;
+      state.daftarSoal = [];
+
+      if (state.misiAktif === 1) {
+        // MISI 1: Kelipatan & Deret Kelipatan
+        document.getElementById("mission-title").innerText = "Misi 1: Konsep Kelipatan Bilangan";
+        for (let i = 0; i < 5; i++) {
+          const base = randomInt(3, 12);
+          const type = randomInt(1, 2);
+          if (type === 1) {
+            const mult = base * randomInt(2, 8);
+            const wrong1 = mult + randomInt(1, 3);
+            const wrong2 = mult - randomInt(1, 2);
+            const wrong3 = mult + randomInt(4, 6);
+            state.daftarSoal.push({
+              teks: `Mana yang merupakan kelipatan dari **${base}**?`,
+              pilihan: shuffle([mult, wrong1, wrong2, wrong3]),
+              kunci: mult,
+              penjelasan: `Kelipatan dari ${base} adalah hasil perkalian ${base} dengan bilangan bulat (${base}, ${base*2}, ${base*3}, dst). ${mult} habis dibagi ${base}.`
             });
-            document.getElementById(viewId).classList.remove('hidden');
-
-            const hud = document.getElementById('hud-stats');
-            if (viewId === 'view-intro' || viewId === 'view-name-input') {
-                hud.classList.add('hidden');
-            } else {
-                hud.classList.remove('hidden');
-            }
-        }
-
-        function toggleMusicUI() {
-            const isOn = sounds.toggleMusic();
-            const icon = document.getElementById('icon-music');
-            icon.className = isOn ? 'fa-solid fa-music text-emerald-400' : 'fa-solid fa-music-slash text-slate-500';
-        }
-
-        function toggleSoundUI() {
-            const isOn = sounds.toggleSound();
-            const icon = document.getElementById('icon-sound');
-            icon.className = isOn ? 'fa-solid fa-volume-high text-amber-400' : 'fa-solid fa-volume-xmark text-slate-500';
-        }
-
-        function goToNameInput() {
-            sounds.playClick();
-            sounds.startBGM();
-            showView('view-name-input');
-        }
-
-        function submitPlayerName() {
-            sounds.playClick();
-            const input = document.getElementById('player-name-input');
-            const err = document.getElementById('name-error');
-            const val = input.value.trim();
-
-            if (!val) {
-                err.classList.remove('hidden');
-                return;
-            }
-
-            err.classList.add('hidden');
-            gameState.playerName = val;
-            gameState.startTime = new Date();
-            document.getElementById('hud-player-name').innerText = val;
-            updateHUD();
-            showView('view-map');
-        }
-
-        function updateHUD() {
-            document.getElementById('score-text').innerText = gameState.score;
-            
-            const livesContainer = document.getElementById('lives-container');
-            livesContainer.innerHTML = '';
-            for (let i = 0; i < 3; i++) {
-                if (i < gameState.lives) {
-                    livesContainer.innerHTML += `<i class="fa-solid fa-heart animate-pulse"></i>`;
-                } else {
-                    livesContainer.innerHTML += `<i class="fa-solid fa-heart text-slate-700"></i>`;
-                }
-            }
-        }
-
-        function addScore(pts) {
-            gameState.score += pts;
-            gameState.missionScores[gameState.currentMission] += pts;
-            updateHUD();
-        }
-
-        function deductLife() {
-            sounds.playWrong();
-            gameState.lives--;
-            gameState.wrongAnswers++;
-            updateHUD();
-
-            if (gameState.lives <= 0) {
-                setTimeout(() => {
-                    showView('view-game-over');
-                }, 1000);
-            }
-        }
-
-        function retryCurrentMission() {
-            sounds.playClick();
-            gameState.lives = 3;
-            gameState.subgameIndex = 0;
-            updateHUD();
-            startMission(gameState.currentMission);
-        }
-
-        function startMission(misiNum) {
-            sounds.playClick();
-            gameState.currentMission = misiNum;
-            gameState.subgameIndex = 0;
-            if (misiNum === 3) window.kpkQuestionIndex = 0;
-            loadSubgame();
-            showView('view-gameplay');
-        }
-
-        function loadSubgame() {
-            const area = document.getElementById('gameplay-area');
-            const feedbackBox = document.getElementById('feedback-box');
-            feedbackBox.classList.add('hidden');
-            area.innerHTML = '';
-
-            const m = gameState.currentMission;
-            const subIdx = gameState.subgameIndex;
-
-            if (m === 1) {
-                if (subIdx === 0) renderSubgame1();
-                else if (subIdx === 1) renderSubgame2();
-            } else if (m === 2) {
-                if (subIdx === 0) renderSubgame3();
-                else if (subIdx === 1) renderSubgame4();
-            } else if (m === 3) {
-                if (subIdx === 0) renderSubgame5();
-                else if (subIdx === 1) renderSubgame6();
-            }
-        }
-
-        function showFeedback(isCorrect, title, message) {
-            const box = document.getElementById('feedback-box');
-            const icon = document.getElementById('feedback-icon');
-            const titleEl = document.getElementById('feedback-title');
-            const msgEl = document.getElementById('feedback-msg');
-
-            box.classList.remove('hidden', 'bg-emerald-500/20', 'border-emerald-400/40', 'text-emerald-300', 'bg-red-500/20', 'border-red-400/40', 'text-red-300');
-
-            if (isCorrect) {
-                sounds.playCorrect();
-                box.classList.add('bg-emerald-500/20', 'border', 'border-emerald-400/40', 'text-emerald-200');
-                icon.className = 'fa-solid fa-circle-check text-emerald-400 text-2xl';
-            } else {
-                box.classList.add('bg-red-500/20', 'border', 'border-red-400/40', 'text-red-200');
-                icon.className = 'fa-solid fa-circle-xmark text-red-400 text-2xl';
-            }
-
-            titleEl.innerText = title;
-            msgEl.innerText = message;
-        }
-
-        function completeSubgame() {
-            sounds.playLevelWin();
-            addScore(20);
-
-            if (gameState.currentMission === 1 && gameState.subgameIndex === 0) {
-                gameState.subgameIndex = 1;
-                setTimeout(loadSubgame, 1500);
-            } else if (gameState.currentMission === 1 && gameState.subgameIndex === 1) {
-                gameState.unlockedMission = Math.max(gameState.unlockedMission, 2);
-                unlockMissionUI(2);
-                setTimeout(() => showView('view-map'), 1500);
-            } else if (gameState.currentMission === 2 && gameState.subgameIndex === 0) {
-                gameState.subgameIndex = 1;
-                setTimeout(loadSubgame, 1500);
-            } else if (gameState.currentMission === 2 && gameState.subgameIndex === 1) {
-                gameState.unlockedMission = Math.max(gameState.unlockedMission, 3);
-                unlockMissionUI(3);
-                setTimeout(() => showView('view-map'), 1500);
-            } else if (gameState.currentMission === 3 && gameState.subgameIndex === 0) {
-                gameState.subgameIndex = 1;
-                setTimeout(loadSubgame, 1500);
-            } else if (gameState.currentMission === 3 && gameState.subgameIndex === 1) {
-                addScore(50);
-                gameState.endTime = new Date();
-                setTimeout(showFinalResults, 1500);
-            }
-        }
-
-        function unlockMissionUI(num) {
-            const card = document.getElementById(`card-misi-${num}`);
-            const btn = document.getElementById(`btn-misi-${num}`);
-            const icon = document.getElementById(`icon-misi-${num}`);
-            const status = document.getElementById(`status-misi-${num}`);
-
-            if (card) {
-                card.classList.remove('opacity-60', 'border-slate-700');
-                card.classList.add(num === 2 ? 'border-purple-400/40' : 'border-amber-400/40');
-            }
-            if (btn) {
-                btn.removeAttribute('disabled');
-                btn.classList.remove('bg-slate-700', 'text-slate-400', 'cursor-not-allowed');
-                btn.classList.add(num === 2 ? 'bg-purple-500' : 'bg-amber-500', 'text-slate-950', 'hover:bg-opacity-90');
-                btn.innerHTML = `<span>JELAJAHI MISI ${num}</span> <i class="fa-solid fa-arrow-right"></i>`;
-            }
-            if (icon) icon.className = num === 2 ? 'fa-solid fa-gem text-2xl text-purple-400' : 'fa-solid fa-fort-awesome text-2xl text-amber-400';
-            if (status) {
-                status.innerText = 'Tersedia';
-                status.className = num === 2 ? 'font-bold text-purple-400' : 'font-bold text-amber-400';
-            }
-        }
-
-        function renderSubgame1() {
-            document.getElementById('edu-title').innerText = 'Apa itu Kelipatan Bilangan?';
-            document.getElementById('edu-desc').innerText = 'Kelipatan suatu bilangan diperoleh dengan mengalikan bilangan tersebut dengan 1, 2, 3, 4, dan seterusnya. Contoh: Kelipatan 4 → 4, 8, 12, 16, 20, ...';
-            document.getElementById('subgame-badge').innerText = 'Misi 1 - Bagian 1';
-            document.getElementById('subgame-title').innerText = 'Tangkap Kelipatan!';
-            document.getElementById('subgame-progress').innerText = 'Level 1/2';
-
-            const targetNum = getRandomInt(2, 9);
-            const correctMultiples = [];
-            const multipliers = shuffleArray([1, 2, 3, 4, 5, 6]).slice(0, 4);
-            multipliers.forEach(m => correctMultiples.push(targetNum * m));
-
-            const distractors = [];
-            while (distractors.length < 4) {
-                const rand = getRandomInt(targetNum + 1, targetNum * 6 + 3);
-                if (rand % targetNum !== 0 && !distractors.includes(rand)) {
-                    distractors.push(rand);
-                }
-            }
-
-            const allNumbers = shuffleArray([...correctMultiples, ...distractors]);
-            window.subgame1Target = targetNum;
-            window.subgame1Correct = correctMultiples.sort((a,b)=>a-b);
-            window.selectedSubgame1 = new Set();
-
-            const area = document.getElementById('gameplay-area');
-            area.innerHTML = `
-                <div class="text-center w-full">
-                    <p class="text-lg font-semibold text-amber-300 mb-6">
-                        🎯 Klik & Tangkap semua angka yang merupakan <span class="underline decoration-pink-500 decoration-4">Kelipatan dari ${targetNum}</span>!
-                    </p>
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-lg mx-auto mb-6">
-                        ${allNumbers.map(num => `
-                            <button onclick="toggleCatchNumber(${num}, this)" id="bubble-${num}" class="number-bubble btn-3d py-5 bg-indigo-900/80 hover:bg-indigo-800 border-2 border-indigo-400/40 rounded-2xl text-2xl font-extrabold heading-font text-white shadow-lg">
-                                ${num}
-                            </button>
-                        `).join('')}
-                    </div>
-                    <button id="btn-submit-m1s1" disabled onclick="checkSubgame1()" class="btn-3d px-8 py-3 bg-emerald-500 opacity-50 cursor-not-allowed text-slate-950 font-bold rounded-xl text-base">
-                        PERIKSA JAWABAN <i class="fa-solid fa-check ml-1"></i>
-                    </button>
-                </div>
-            `;
-        }
-
-        function toggleCatchNumber(num, btnEl) {
-            sounds.playClick();
-            if (window.selectedSubgame1.has(num)) {
-                window.selectedSubgame1.delete(num);
-                btnEl.classList.remove('bg-amber-400', 'text-slate-950', 'border-amber-300');
-                btnEl.classList.add('bg-indigo-900/80', 'text-white', 'border-indigo-400/40');
-            } else {
-                window.selectedSubgame1.add(num);
-                btnEl.classList.remove('bg-indigo-900/80', 'text-white', 'border-indigo-400/40');
-                btnEl.classList.add('bg-amber-400', 'text-slate-950', 'border-amber-300');
-            }
-
-            const submitBtn = document.getElementById('btn-submit-m1s1');
-            if (window.selectedSubgame1.size > 0) {
-                submitBtn.removeAttribute('disabled');
-                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-            } else {
-                submitBtn.setAttribute('disabled', 'true');
-                submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
-            }
-        }
-
-        function checkSubgame1() {
-            const correctArr = window.subgame1Correct;
-            const userArr = Array.from(window.selectedSubgame1).sort((a,b)=>a-b);
-
-            const isExact = correctArr.length === userArr.length && correctArr.every((n, i) => n === userArr[i]);
-
-            if (isExact) {
-                showFeedback(true, 'HEBAT! Jawabanmu Benar!', `Kamu berhasil menangkap semua kelipatan ${window.subgame1Target} dengan tepat (+10 poin)`);
-                addScore(10);
-                gameState.correctAnswers++;
-                completeSubgame();
-            } else {
-                deductLife();
-                showFeedback(false, 'Belum Tepat!', `Ingat, kelipatan ${window.subgame1Target} adalah hasil perkalian ${window.subgame1Target} × 1, 2, 3, dst. Jawaban tepatnya: ${correctArr.join(', ')}.`);
-            }
-        }
-
-        function renderSubgame2() {
-            document.getElementById('subgame-badge').innerText = 'Misi 1 - Bagian 2';
-            document.getElementById('subgame-title').innerText = 'Lengkapi Deret Kelipatan';
-            document.getElementById('subgame-progress').innerText = 'Level 2/2';
-
-            const base = getRandomInt(3, 9);
-            const startMult = getRandomInt(1, 4);
-            const fullSequence = [
-                base * startMult,
-                base * (startMult + 1),
-                base * (startMult + 2),
-                base * (startMult + 3),
-                base * (startMult + 4),
-                base * (startMult + 5)
-            ];
-
-            const blankIndices = shuffleArray([1, 2, 3, 4]).slice(0, 2).sort((a,b)=>a-b);
-            window.subgame2Expected = [fullSequence[blankIndices[0]], fullSequence[blankIndices[1]]];
-            window.subgame2Base = base;
-
-            const area = document.getElementById('gameplay-area');
-
-            area.innerHTML = `
-                <div class="text-center w-full max-w-lg">
-                    <p class="text-lg font-semibold text-indigo-200 mb-6">
-                        🧩 Isilah titik-titik pada deret kelipatan <span class="text-amber-300 font-bold">${base}</span> di bawah ini!
-                    </p>
-                    <div class="flex flex-wrap items-center justify-center gap-2 md:gap-3 mb-8">
-                        ${fullSequence.map((val, idx) => {
-                            if (blankIndices.includes(idx)) {
-                                const boxNum = blankIndices.indexOf(idx) + 1;
-                                return `<input type="number" id="seq-input-${boxNum}" placeholder="?" class="w-16 md:w-20 py-3 text-center bg-slate-900 border-2 border-amber-400 rounded-2xl font-extrabold heading-font text-2xl text-amber-300 focus:outline-none">`;
-                            } else {
-                                return `<span class="px-3 md:px-4 py-3 bg-indigo-900/80 rounded-2xl border border-indigo-400/40 font-extrabold heading-font text-xl md:text-2xl text-white">${val}</span>`;
-                            }
-                        }).join('<span class="text-slate-400 text-xs"><i class="fa-solid fa-arrow-right"></i></span>')}
-                    </div>
-
-                    <button onclick="checkSubgame2()" class="btn-3d px-8 py-3 bg-emerald-500 text-slate-950 font-bold rounded-xl text-base">
-                        PERIKSA JAWABAN <i class="fa-solid fa-check ml-1"></i>
-                    </button>
-                </div>
-            `;
-        }
-
-        function checkSubgame2() {
-            const val1 = parseInt(document.getElementById('seq-input-1').value);
-            const val2 = parseInt(document.getElementById('seq-input-2').value);
-
-            if (val1 === window.subgame2Expected[0] && val2 === window.subgame2Expected[1]) {
-                showFeedback(true, 'LUAR BIASA!', `Deret kelipatan ${window.subgame2Base} sudah lengkap dan tepat! (+10 poin)`);
-                addScore(10);
-                gameState.correctAnswers++;
-                completeSubgame();
-            } else {
-                deductLife();
-                showFeedback(false, 'Belum Tepat!', `Perhatikan pola pertambahan kelipatan ${window.subgame2Base}. Jawaban yang benar adalah ${window.subgame2Expected[0]} dan ${window.subgame2Expected[1]}.`);
-            }
-        }
-
-        function renderSubgame3() {
-            document.getElementById('edu-title').innerText = 'Apa itu Kelipatan Persekutuan?';
-            document.getElementById('edu-desc').innerText = 'Kelipatan persekutuan adalah angka-angka kelipatan yang SAMA/KEMBAR dari dua bilangan atau lebih.';
-            document.getElementById('subgame-badge').innerText = 'Misi 2 - Bagian 1';
-            document.getElementById('subgame-title').innerText = 'Temukan Angka Kembar!';
-            document.getElementById('subgame-progress').innerText = 'Level 1/2';
-
-            const pairsPool = [[2,3], [2,5], [3,4], [3,5], [4,5], [4,6], [6,8], [3,6]];
-            const selectedPair = pairsPool[getRandomInt(0, pairsPool.length - 1)];
-            const num1 = selectedPair[0], num2 = selectedPair[1];
-
-            const list1 = Array.from({length: 8}, (_, i) => num1 * (i + 1));
-            const list2 = Array.from({length: 8}, (_, i) => num2 * (i + 1));
-
-            const commonMultiples = list1.filter(n => list2.includes(n));
-
-            const distractors = [...list1, ...list2].filter(n => !commonMultiples.includes(n));
-            const shuffledDistractors = shuffleArray([...new Set(distractors)]).slice(0, 8 - commonMultiples.length);
-            const allOptions = shuffleArray([...commonMultiples, ...shuffledDistractors]);
-
-            window.subgame3Common = commonMultiples.sort((a,b)=>a-b);
-            window.subgame3Pair = [num1, num2];
-            window.selectedSubgame3 = new Set();
-
-            const area = document.getElementById('gameplay-area');
-            area.innerHTML = `
-                <div class="w-full text-center max-w-2xl">
-                    <p class="text-sm md:text-base font-semibold text-indigo-200 mb-4">
-                        ⭐ Klik angka yang muncul di KEDUA jalur kelipatan (Kelipatan Persekutuan dari ${num1} dan ${num2})!
-                    </p>
-
-                    <div class="space-y-4 mb-6 text-left">
-                        <div class="bg-indigo-950/60 p-4 rounded-2xl border border-indigo-400/30">
-                            <span class="text-xs font-bold text-indigo-300 block mb-2">Kelipatan ${num1}:</span>
-                            <div class="flex flex-wrap gap-2">
-                                ${list1.map(n => `<span class="px-3 py-1.5 bg-indigo-900 rounded-lg text-sm font-bold text-white">${n}</span>`).join('')}
-                            </div>
-                        </div>
-                        <div class="bg-purple-950/60 p-4 rounded-2xl border border-purple-400/30">
-                            <span class="text-xs font-bold text-purple-300 block mb-2">Kelipatan ${num2}:</span>
-                            <div class="flex flex-wrap gap-2">
-                                ${list2.map(n => `<span class="px-3 py-1.5 bg-purple-900 rounded-lg text-sm font-bold text-white">${n}</span>`).join('')}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="flex flex-wrap justify-center gap-3 mb-6">
-                        ${allOptions.map(n => `
-                            <button onclick="toggleSubgame3Num(${n}, this)" class="number-bubble btn-3d px-5 py-3 bg-slate-800 hover:bg-slate-700 border border-white/20 rounded-xl font-bold text-lg text-white">
-                                ${n}
-                            </button>
-                        `).join('')}
-                    </div>
-
-                    <button onclick="checkSubgame3()" class="btn-3d px-8 py-3 bg-emerald-500 text-slate-950 font-bold rounded-xl text-base">
-                        PERIKSA KEMBARAN <i class="fa-solid fa-star ml-1 text-amber-300"></i>
-                    </button>
-                </div>
-            `;
-        }
-
-        function toggleSubgame3Num(num, btnEl) {
-            sounds.playClick();
-            if (window.selectedSubgame3.has(num)) {
-                window.selectedSubgame3.delete(num);
-                btnEl.classList.remove('bg-amber-400', 'text-slate-950', 'border-amber-300');
-                btnEl.classList.add('bg-slate-800', 'text-white', 'border-white/20');
-            } else {
-                window.selectedSubgame3.add(num);
-                btnEl.classList.remove('bg-slate-800', 'text-white', 'border-white/20');
-                btnEl.classList.add('bg-amber-400', 'text-slate-950', 'border-amber-300');
-            }
-        }
-
-        function checkSubgame3() {
-            const correct = window.subgame3Common;
-            const userArr = Array.from(window.selectedSubgame3).sort((a,b)=>a-b);
-
-            const isExact = correct.length === userArr.length && correct.every((n, i) => n === userArr[i]);
-
-            if (isExact) {
-                showFeedback(true, 'TEPAT BANGET!', `${correct.join(', ')} adalah kelipatan persekutuan dari ${window.subgame3Pair[0]} dan ${window.subgame3Pair[1]}! (+10 poin)`);
-                addScore(10);
-                gameState.correctAnswers++;
-                completeSubgame();
-            } else {
-                deductLife();
-                showFeedback(false, 'Belum Tepat!', `Coba bandingkan kedua daftar. Angka yang sama di kedua jalur adalah: ${correct.join(', ')}.`);
-            }
-        }
-
-        function renderSubgame4() {
-            document.getElementById('subgame-badge').innerText = 'Misi 2 - Bagian 2';
-            document.getElementById('subgame-title').innerText = 'Pasangkan Kelipatan Persekutuan';
-            document.getElementById('subgame-progress').innerText = 'Level 2/2';
-
-            const pairsPool = [[2,3], [2,5], [3,4], [3,5], [4,5], [2,4], [5,10]];
-            const pair = pairsPool[getRandomInt(0, pairsPool.length - 1)];
-            const lcmVal = getLCM(pair[0], pair[1]);
-
-            const correctSeq = [lcmVal * 1, lcmVal * 2, lcmVal * 3];
-            const distractor1 = [pair[0] * 1, pair[0] * 3, pair[0] * 5];
-            const distractor2 = [pair[1] * 1, pair[1] * 2, pair[1] * 3];
-            const distractor3 = [lcmVal + 2, lcmVal * 2 + 3, lcmVal * 3 + 4];
-
-            const options = shuffleArray([
-                { text: correctSeq.join(', '), correct: true },
-                { text: distractor1.join(', '), correct: false },
-                { text: distractor2.join(', '), correct: false },
-                { text: distractor3.join(', '), correct: false }
-            ]);
-
-            const area = document.getElementById('gameplay-area');
-            area.innerHTML = `
-                <div class="w-full text-center max-w-lg">
-                    <p class="text-base font-semibold text-indigo-200 mb-6">
-                        🔗 Mana kelompok angka yang merupakan <span class="text-amber-300 font-bold">Kelipatan Persekutuan dari ${pair[0]} dan ${pair[1]}</span>?
-                    </p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                        ${options.map((opt) => `
-                            <button onclick="checkSubgame4(${opt.correct}, '${correctSeq.join(', ')}')" class="btn-3d p-4 bg-slate-800/90 hover:bg-slate-700 border border-indigo-400/30 rounded-2xl text-lg font-bold text-amber-300">
-                                ${opt.text}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function checkSubgame4(isCorrect, correctAnsText) {
-            if (isCorrect) {
-                showFeedback(true, 'SANGAT CERDAS!', `${correctAnsText} habis dibagi kedua bilangan tersebut! (+10 poin)`);
-                addScore(10);
-                gameState.correctAnswers++;
-                completeSubgame();
-            } else {
-                deductLife();
-                showFeedback(false, 'Belum Pas!', `Kelipatan persekutuan yang tepat adalah ${correctAnsText} karena dapat dibagi oleh kedua angka.`);
-            }
-        }
-
-        function renderSubgame5() {
-            document.getElementById('edu-title').innerText = 'Apa itu KPK (Kelipatan Persekutuan Terkecil)?';
-            document.getElementById('edu-desc').innerText = 'KPK adalah kelipatan persekutuan yang nilainya PALING KECIL di antara kelipatan persekutuan lainnya! Contoh: KPK dari 4 dan 6 adalah 12.';
-            document.getElementById('subgame-badge').innerText = 'Misi 3 - Bagian 1';
-            document.getElementById('subgame-title').innerText = 'Buru KPK!';
-            document.getElementById('subgame-progress').innerText = 'Level 1/2';
-
-            const num1 = getRandomInt(2, 9);
-            let num2 = getRandomInt(2, 9);
-            while (num1 === num2) num2 = getRandomInt(2, 9);
-
-            const correctKPK = getLCM(num1, num2);
-
-            const distractors = new Set([
-                num1 * num2,
-                correctKPK + Math.min(num1, num2),
-                Math.max(correctKPK - Math.min(num1, num2), 1),
-                correctKPK * 2
-            ]);
-            distractors.delete(correctKPK);
-
-            const shuffledOpts = shuffleArray([correctKPK, ...Array.from(distractors).slice(0, 3)]);
-
-            const list1 = Array.from({length: 5}, (_, i) => num1 * (i + 1)).join(', ');
-            const list2 = Array.from({length: 5}, (_, i) => num2 * (i + 1)).join(', ');
-
-            const area = document.getElementById('gameplay-area');
-            area.innerHTML = `
-                <div class="w-full text-center max-w-lg">
-                    <p class="text-lg font-bold text-amber-300 mb-4">
-                        🏰 Temukan KPK dari ${num1} dan ${num2}!
-                    </p>
-                    <p class="text-xs text-slate-300 mb-6 bg-slate-900/60 p-3 rounded-xl border border-white/10">
-                        Kelipatan ${num1}: ${list1}...<br>
-                        Kelipatan ${num2}: ${list2}...
-                    </p>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        ${shuffledOpts.map(ans => `
-                            <button onclick="checkSubgame5(${ans === correctKPK}, ${correctKPK}, ${num1}, ${num2})" class="btn-3d py-4 bg-indigo-900 hover:bg-indigo-800 border-2 border-indigo-400/40 rounded-2xl heading-font text-2xl font-bold text-white">
-                                ${ans}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function checkSubgame5(isCorrect, correctVal, num1, num2) {
-            if (isCorrect) {
-                showFeedback(true, 'TEPAT SEKALI!', `${correctVal} adalah Kelipatan Persekutuan Terkecil (KPK) dari ${num1} dan ${num2}! (+10 poin)`);
-                addScore(10);
-                gameState.correctAnswers++;
-                completeSubgame();
-            } else {
-                deductLife();
-                showFeedback(false, 'Belum Tepat!', `KPK dari ${num1} dan ${num2} adalah ${correctVal}. Cari kelipatan terkecil yang sama di antara keduanya.`);
-            }
-        }
-
-        function renderSubgame6() {
-            document.getElementById('subgame-badge').innerText = 'Misi 3 - Bagian 2';
-            document.getElementById('subgame-title').innerText = 'Tantangan Mahkota KPK (Acak Tak Terbatas)';
-            
-            if (!window.kpkQuestionIndex) window.kpkQuestionIndex = 0;
-            const currentRound = window.kpkQuestionIndex;
-            const totalRounds = 5;
-
-            document.getElementById('subgame-progress').innerText = `Tantangan ${currentRound + 1} / ${totalRounds}`;
-
-            const a = getRandomInt(2, 10);
-            let b = getRandomInt(2, 10);
-            while (a === b) b = getRandomInt(2, 10);
-
-            const correct = getLCM(a, b);
-            const distSet = new Set([
-                a * b,
-                correct + a,
-                correct + b,
-                Math.max(correct - a, 1)
-            ]);
-            distSet.delete(correct);
-
-            const opts = shuffleArray([correct, ...Array.from(distSet).slice(0, 3)]);
-
-            const area = document.getElementById('gameplay-area');
-            area.innerHTML = `
-                <div class="w-full text-center max-w-lg">
-                    <div class="inline-block px-3 py-1 bg-amber-400/20 text-amber-300 rounded-full text-xs font-bold mb-3">
-                        Soal Tantangan ${currentRound + 1}
-                    </div>
-                    <h4 class="heading-font text-2xl font-bold text-white mb-6">
-                        Berapakah KPK dari <span class="text-amber-300">${a}</span> dan <span class="text-amber-300">${b}</span>?
-                    </h4>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        ${opts.map(opt => `
-                            <button onclick="checkSubgame6(${opt === correct}, ${correct}, ${a}, ${b})" class="btn-3d py-4 bg-slate-800 hover:bg-slate-700 border border-white/20 rounded-2xl heading-font text-xl font-bold text-amber-300">
-                                ${opt}
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
-            `;
-        }
-
-        function checkSubgame6(isCorrect, correctVal, a, b) {
-            if (isCorrect) {
-                addScore(10);
-                gameState.correctAnswers++;
-                window.kpkQuestionIndex++;
-
-                if (window.kpkQuestionIndex < 5) {
-                    showFeedback(true, 'BENAR!', `KPK dari ${a} dan ${b} adalah ${correctVal}. Lanjut ke soal berikutnya! (+10 poin)`);
-                    setTimeout(renderSubgame6, 1200);
-                } else {
-                    showFeedback(true, 'SELAMAT!', 'Kamu telah menyelesaikan semua Tantangan KPK! (+10 poin)');
-                    completeSubgame();
-                }
-            } else {
-                deductLife();
-                showFeedback(false, 'Belum Tepat!', `KPK dari ${a} dan ${b} adalah ${correctVal}. Tuliskan kelipatan dari ${a} dan ${b}, lalu cari kelipatan pertama yang sama.`);
-            }
-        }
-
-        function showFinalResults() {
-            showView('view-results');
-            sounds.playLevelWin();
-
-            if (typeof confetti === 'function') {
-                confetti({
-                    particleCount: 120,
-                    spread: 80,
-                    origin: { y: 0.6 }
-                });
-            }
-
-            document.getElementById('res-player-name').innerText = gameState.playerName;
-            document.getElementById('res-total-score').innerText = gameState.score;
-            document.getElementById('res-correct').innerText = gameState.correctAnswers;
-            document.getElementById('res-wrong').innerText = gameState.wrongAnswers;
-
-            const totalQ = gameState.correctAnswers + gameState.wrongAnswers;
-            const accuracy = totalQ > 0 ? Math.round((gameState.correctAnswers / totalQ) * 100) : 100;
-            document.getElementById('res-accuracy').innerText = `${accuracy}%`;
-
-            const badgeIcon = document.getElementById('badge-icon-box');
-            const badgeTitle = document.getElementById('res-badge-title');
-            const badgeDesc = document.getElementById('res-badge-desc');
-
-            if (gameState.score >= 150) {
-                badgeIcon.innerText = '🏆';
-                badgeTitle.innerText = 'Ahli KPK';
-                badgeDesc.innerText = 'Sangat Luar Biasa! Pemahaman dan ketelitian matematikamu sempurna!';
-            } else if (gameState.score >= 100) {
-                badgeIcon.innerText = '⭐';
-                badgeTitle.innerText = 'Penjelajah Hebat';
-                badgeDesc.innerText = 'Hebat sekali! Kamu menguasai kelipatan dan KPK dengan sangat baik!';
-            } else {
-                badgeIcon.innerText = '🌟';
-                badgeTitle.innerText = 'Pejuang Kelipatan';
-                badgeDesc.innerText = 'Kerja bagus! Terus berlatih agar menjadi Master KPK selanjutnya!';
-            }
-        }
-
-        function exportToCSV() {
-            sounds.playClick();
-            const now = new Date();
-            const accuracy = Math.round((gameState.correctAnswers / (gameState.correctAnswers + gameState.wrongAnswers || 1)) * 100);
-            
-            const rows = [
-                ["Nama Siswa", "Tanggal", "Total Skor", "Jawaban Benar", "Jawaban Salah", "Akurasi (%)", "Misi 1 Skor", "Misi 2 Skor", "Misi 3 Skor", "Status"],
-                [
-                    `"${gameState.playerName}"`,
-                    `"${now.toLocaleDateString('id-ID')}"`,
-                    gameState.score,
-                    gameState.correctAnswers,
-                    gameState.wrongAnswers,
-                    `"${accuracy}%"`,
-                    gameState.missionScores[1],
-                    gameState.missionScores[2],
-                    gameState.missionScores[3],
-                    '"Selesai"'
-                ]
-            ];
-
-            const csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.join(",")).join("\n");
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Hasil_KPK_${gameState.playerName.replace(/\s+/g, '_')}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function copyFormattedReport() {
-            sounds.playClick();
-            const now = new Date();
-            const text = `
---------------------------------------------------
-📊 REKAP HASIL PETUALANGAN KELIPATAN & KPK
---------------------------------------------------
-Nama Siswa     : ${gameState.playerName}
-Tanggal        : ${now.toLocaleDateString('id-ID')} ${now.toLocaleTimeString('id-ID')}
-Total Skor     : ${gameState.score}
-Jawaban Benar  : ${gameState.correctAnswers}
-Jawaban Salah  : ${gameState.wrongAnswers}
-Skor Misi 1    : ${gameState.missionScores[1]}
-Skor Misi 2    : ${gameState.missionScores[2]}
-Skor Misi 3    : ${gameState.missionScores[3]}
-Status         : LULUS / SELESAI
---------------------------------------------------
-            `.trim();
-
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-
-            alert("✅ Ringkasan nilai berhasil disalin ke clipboard!");
-        }
-
-        function openWebhookModal() {
-            sounds.playClick();
-            document.getElementById('modal-webhook').classList.remove('hidden');
-        }
-
-        function closeWebhookModal() {
-            sounds.playClick();
-            document.getElementById('modal-webhook').classList.add('hidden');
-        }
-
-        function submitWebhookData() {
-            sounds.playClick();
-            const url = document.getElementById('webhook-url-input').value.trim();
-            if (!url) {
-                alert("URL Webhook Google Apps Script belum terisi!");
-                return;
-            }
-
-            const btn = document.getElementById('btn-submit-sheet');
-            btn.innerText = "Mengirim...";
-            btn.disabled = true;
-
-            const payload = {
-                nama: gameState.playerName,
-                tanggal: new Date().toISOString(),
-                skorTotal: gameState.score,
-                benar: gameState.correctAnswers,
-                salah: gameState.wrongAnswers,
-                skorMisi1: gameState.missionScores[1],
-                skorMisi2: gameState.missionScores[2],
-                skorMisi3: gameState.missionScores[3]
-            };
-
-            fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                alert("✅ SELAMAT! Data hasil permainan berhasil terkirim ke Google Sheets & Email Guru!");
-                btn.innerText = "Terkirim!";
-                setTimeout(() => {
-                    closeWebhookModal();
-                    btn.innerText = "Kirim Sekarang";
-                    btn.disabled = false;
-                }, 1000);
-            })
-            .catch(() => {
-                alert("⚠️ Gagal mengirim data. Pastikan koneksi internet Anda aktif.");
-                btn.innerText = "Kirim Sekarang";
-                btn.disabled = false;
+          } else {
+            const k1 = base * 1, k2 = base * 2, k3 = base * 3, k4 = base * 4;
+            state.daftarSoal.push({
+              teks: `Lengkapi barisan kelipatan ini: **${k1}, ${k2}, ___, ${k4}**`,
+              pilihan: shuffle([k3, k3 + 1, k3 - 2, k3 + 3]),
+              kunci: k3,
+              penjelasan: `Barisan tersebut menambah ${base} di setiap langkahnya. ${k2} + ${base} = ${k3}.`
             });
+          }
         }
+      } else if (state.misiAktif === 2) {
+        // MISI 2: Kelipatan Persekutuan
+        document.getElementById("mission-title").innerText = "Misi 2: Kelipatan Persekutuan";
+        for (let i = 0; i < 5; i++) {
+          const a = randomInt(2, 6);
+          let b = randomInt(3, 8);
+          if (a === b) b++;
+          
+          const kpk = lcm(a, b);
+          const wrong1 = kpk + Math.min(a, b);
+          const wrong2 = kpk - Math.min(a, b);
+          const wrong3 = a * b + 2;
 
-        function resetGame() {
-            sounds.playClick();
-            gameState.score = 0;
-            gameState.lives = 3;
-            gameState.currentMission = 1;
-            gameState.unlockedMission = 1;
-            gameState.subgameIndex = 0;
-            gameState.correctAnswers = 0;
-            gameState.wrongAnswers = 0;
-            gameState.missionScores = { 1: 0, 2: 0, 3: 0 };
-            window.kpkQuestionIndex = 0;
-            updateHUD();
-            showView('view-map');
+          state.daftarSoal.push({
+            teks: `Tentukan kelipatan persekutuan terkecil (paling pertama) dari **${a}** dan **${b}**!`,
+            pilihan: shuffle(Array.from(new Set([kpk, wrong1, wrong2, wrong3])).slice(0, 4)),
+            kunci: kpk,
+            penjelasan: `Kelipatan ${a}: ${a}, ${a*2}, ${a*3}... <br>Kelipatan ${b}: ${b}, ${b*2}, ${b*3}... <br>Kelipatan persekutuan pertama mereka adalah ${kpk}.`
+          });
         }
-    </script>
+      } else if (state.misiAktif === 3) {
+        // MISI 3: Pohon Faktor & KPK
+        document.getElementById("mission-title").innerText = "Misi 3: Pohon Faktor & KPK";
+        for (let i = 0; i < 5; i++) {
+          const pairs = [[6, 8], [8, 12], [10, 15], [12, 18], [9, 12], [15, 20], [6, 15]];
+          const selected = pairs[randomInt(0, pairs.length - 1)];
+          const n1 = selected[0], n2 = selected[1];
+          const ansKpk = lcm(n1, n2);
+
+          state.daftarSoal.push({
+            teks: `Gunakan analisis Pohon Faktor untuk menemukan KPK dari **${n1}** dan **${n2}**!`,
+            treeData: { n1, n2 },
+            pilihan: shuffle([ansKpk, ansKpk + 6, ansKpk / 2, ansKpk + 12]),
+            kunci: ansKpk,
+            penjelasan: `Faktorisasi prima diperoleh dari rantai pohon faktor. Ambil semua faktor dengan pangkat terbesar untuk mendapatkan KPK = ${ansKpk}.`
+          });
+        }
+      }
+
+      renderQuestion();
+    }
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
+
+    function renderQuestion() {
+      const q = state.daftarSoal[state.indeksSoal];
+      document.getElementById("question-tracker").innerText = `Soal ${state.indeksSoal + 1} / 5`;
+      document.getElementById("question-text").innerHTML = q.teks.replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-300 font-bold">$1</span>');
+      
+      const treeContainer = document.getElementById("tree-container");
+      if (q.treeData) {
+        treeContainer.classList.remove("hidden");
+        treeContainer.innerHTML = `
+          <div class="flex justify-around w-full max-w-md my-2">
+            <div class="text-center">
+              <div class="tree-node">${q.treeData.n1}</div>
+              <div class="text-xs text-indigo-300 mt-1">🌿 Pohon A</div>
+            </div>
+            <div class="text-center">
+              <div class="tree-node">${q.treeData.n2}</div>
+              <div class="text-xs text-indigo-300 mt-1">🌿 Pohon B</div>
+            </div>
+          </div>
+        `;
+      } else {
+        treeContainer.classList.add("hidden");
+      }
+
+      const optContainer = document.getElementById("options-container");
+      optContainer.innerHTML = "";
+      document.getElementById("feedback-box").classList.add("hidden");
+
+      q.pilihan.forEach(opt => {
+        const btn = document.createElement("button");
+        btn.className = "btn-option p-4 bg-white/10 hover:bg-white/20 border border-white/20 rounded-2xl font-bold text-xl text-white text-center";
+        btn.innerText = opt;
+        btn.onclick = () => checkAnswer(opt, btn);
+        optContainer.appendChild(btn);
+      });
+    }
+
+    function checkAnswer(selected, btn) {
+      const q = state.daftarSoal[state.indeksSoal];
+      const isCorrect = selected === q.kunci;
+
+      // Disable semua tombol pilihan setelah memilih
+      const allBtns = document.querySelectorAll(".btn-option");
+      allBtns.forEach(b => b.disabled = true);
+
+      const feedbackBox = document.getElementById("feedback-box");
+      const feedbackTitle = document.getElementById("feedback-title");
+      const feedbackExplain = document.getElementById("feedback-explain");
+
+      feedbackBox.classList.remove("hidden");
+
+      if (isCorrect) {
+        btn.classList.add("bg-emerald-500/80", "border-emerald-300");
+        feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-emerald-950/80 border border-emerald-500/50";
+        feedbackTitle.className = "font-pop text-xl text-emerald-300";
+        feedbackTitle.innerText = "🎉 JAWABAN BENAR! (+20 Poin)";
+        
+        state.totalSkor += 20;
+        state.jawabanBenar++;
+        if (state.misiAktif === 1) state.skorM1 += 20;
+        if (state.misiAktif === 2) state.skorM2 += 20;
+        if (state.misiAktif === 3) state.skorM3 += 20;
+
+      } else {
+        btn.classList.add("bg-rose-500/80", "border-rose-300");
+        feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-rose-950/80 border border-rose-500/50";
+        feedbackTitle.className = "font-pop text-xl text-rose-300";
+        feedbackTitle.innerText = `❌ KURANG TEPAT! (Jawaban Benar: ${q.kunci})`;
+        state.jawabanSalah++;
+      }
+
+      document.getElementById("score-display").innerText = state.totalSkor;
+      feedbackExplain.innerHTML = q.penjelasan;
+    }
+
+    function nextQuestion() {
+      state.indeksSoal++;
+      if (state.indeksSoal < 5) {
+        renderQuestion();
+      } else {
+        if (state.misiAktif < 3) {
+          state.misiAktif++;
+          generateMissionQuestions();
+        } else {
+          finishGame();
+        }
+      }
+    }
+
+    function finishGame() {
+      document.getElementById("screen-game").classList.add("hidden");
+      document.getElementById("screen-result").classList.remove("hidden");
+      
+      document.getElementById("result-nama").innerText = state.nama;
+      document.getElementById("final-score").innerText = state.totalSkor;
+      const acc = Math.round((state.jawabanBenar / 15) * 100);
+      document.getElementById("final-accuracy").innerText = `${acc}%`;
+
+      sendResultToAppsScript();
+    }
+
+    function sendResultToAppsScript() {
+      const statusText = document.getElementById("send-status");
+      statusText.innerText = "Mengirim hasil rekap ke guru...";
+
+      const payload = {
+        tanggal: new Date().toLocaleString("id-ID"),
+        namaSiswa: state.nama,
+        totalSkor: state.totalSkor,
+        jawabanBenar: state.jawabanBenar,
+        jawabanSalah: state.jawabanSalah,
+        skorMisi1: state.skorM1,
+        skorMisi2: state.skorM2,
+        skorMisi3: state.skorM3,
+        status: "Selesai"
+      };
+
+      fetch(WEBHOOK_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        statusText.innerText = "✅ Rekap nilai berhasil terkirim ke Google Sheets & Email Guru!";
+        statusText.classList.remove("animate-pulse");
+        statusText.classList.add("text-emerald-300");
+      })
+      .catch(err => {
+        statusText.innerText = "⚠️ Terjadi masalah saat mengirim data, namun skor tetap tercatat lokal.";
+      });
+    }
+
+    function resetGame() {
+      document.getElementById("screen-result").classList.add("hidden");
+      document.getElementById("screen-login").classList.remove("hidden");
+      document.getElementById("header-stats").classList.add("hidden");
+      document.getElementById("input-nama").value = "";
+    }
+  </script>
 </body>
 </html>
