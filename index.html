@@ -22,7 +22,7 @@
     .btn-option {
       transition: all 0.2s ease;
     }
-    .btn-option:hover {
+    .btn-option:hover:not(:disabled) {
       transform: translateY(-2px);
       box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
@@ -65,7 +65,7 @@
         Petualangan Kelipatan
       </h1>
       <p class="text-indigo-100 text-sm md:text-base max-w-md mx-auto">
-        Misi Rahasia Menemukan KPK dengan Pohon Faktor dan Kelipatan Persekutuan!
+        Misi Rahasia Menemukan KPK dengan Pohon Faktor dan Kelipatan Persekutuan! (10 Soal per Misi)
       </p>
 
       <div class="space-y-4 max-w-sm mx-auto pt-4">
@@ -82,7 +82,7 @@
     <div id="screen-game" class="hidden space-y-6">
       <div class="flex justify-between items-center text-sm font-semibold text-indigo-200">
         <span id="mission-title" class="bg-indigo-900/60 px-3 py-1 rounded-full border border-indigo-400/30">Misi 1</span>
-        <span id="question-tracker">Soal 1 / 5</span>
+        <span id="question-tracker">Soal 1 / 10</span>
       </div>
 
       <!-- AREA SOAL -->
@@ -97,12 +97,12 @@
         </div>
       </div>
 
-      <!-- OPTIONS / INPUT -->
+      <!-- OPTIONS -->
       <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Pilihan jawaban dirender JS -->
       </div>
 
-      <!-- FEEDBACK MODAL/BOX (Tampil SETELAH menjawab) -->
+      <!-- FEEDBACK BOX (Tampil SETELAH menjawab) -->
       <div id="feedback-box" class="hidden p-4 rounded-2xl text-center space-y-3">
         <div id="feedback-title" class="font-pop text-xl"></div>
         <p id="feedback-explain" class="text-sm text-indigo-100"></p>
@@ -143,7 +143,6 @@
   </div>
 
   <script>
-    // URL Webhook Apps Script
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzVgiP9hOOjgXjFe4DJVMcg9plcv9yxREGRJJhe4smomIt8px5Po_a541eFPZxtIonX/exec";
 
     let state = {
@@ -159,10 +158,13 @@
       daftarSoal: []
     };
 
-    // Helper Matematika
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const lcm = (a, b) => (a * b) / gcd(a, b);
     const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    function shuffle(array) {
+      return array.sort(() => Math.random() - 0.5);
+    }
 
     function startGame() {
       const inputNama = document.getElementById("input-nama").value.trim();
@@ -187,73 +189,78 @@
       generateMissionQuestions();
     }
 
-    // Generator Soal Dinamis & Tak Hingga
     function generateMissionQuestions() {
       state.indeksSoal = 0;
       state.daftarSoal = [];
 
       if (state.misiAktif === 1) {
-        // MISI 1: Kelipatan & Deret Kelipatan
         document.getElementById("mission-title").innerText = "Misi 1: Konsep Kelipatan Bilangan";
-        for (let i = 0; i < 5; i++) {
-          const base = randomInt(3, 12);
+        for (let i = 0; i < 10; i++) {
+          const base = randomInt(2, 12);
           const type = randomInt(1, 2);
           if (type === 1) {
-            const mult = base * randomInt(2, 8);
-            const wrong1 = mult + randomInt(1, 3);
+            const mult = base * randomInt(2, 9);
+            const wrong1 = mult + randomInt(1, 2);
             const wrong2 = mult - randomInt(1, 2);
-            const wrong3 = mult + randomInt(4, 6);
+            const wrong3 = mult + randomInt(3, 4);
             state.daftarSoal.push({
-              teks: `Mana yang merupakan kelipatan dari **${base}**?`,
-              pilihan: shuffle([mult, wrong1, wrong2, wrong3]),
+              teks: `Manakah angka di bawah ini yang merupakan kelipatan dari **${base}**?`,
+              pilihan: shuffle(Array.from(new Set([mult, wrong1, wrong2, wrong3])).slice(0, 4)),
               kunci: mult,
-              penjelasan: `Kelipatan dari ${base} adalah hasil perkalian ${base} dengan bilangan bulat (${base}, ${base*2}, ${base*3}, dst). ${mult} habis dibagi ${base}.`
+              penjelasan: "Kelipatan adalah hasil perkalian suatu bilangan dengan bilangan bulat."
             });
           } else {
             const k1 = base * 1, k2 = base * 2, k3 = base * 3, k4 = base * 4;
             state.daftarSoal.push({
-              teks: `Lengkapi barisan kelipatan ini: **${k1}, ${k2}, ___, ${k4}**`,
-              pilihan: shuffle([k3, k3 + 1, k3 - 2, k3 + 3]),
+              teks: `Lengkapi barisan kelipatan berikut: **${k1}, ${k2}, ___, ${k4}**`,
+              pilihan: shuffle(Array.from(new Set([k3, k3 + 1, k3 - 1, k3 + 2])).slice(0, 4)),
               kunci: k3,
-              penjelasan: `Barisan tersebut menambah ${base} di setiap langkahnya. ${k2} + ${base} = ${k3}.`
+              penjelasan: "Pola barisan kelipatan ini selalu melompat dengan penambahan angka yang sama."
             });
           }
         }
       } else if (state.misiAktif === 2) {
-        // MISI 2: Kelipatan Persekutuan
         document.getElementById("mission-title").innerText = "Misi 2: Kelipatan Persekutuan";
-        for (let i = 0; i < 5; i++) {
-          const a = randomInt(2, 6);
-          let b = randomInt(3, 8);
+        for (let i = 0; i < 10; i++) {
+          const a = randomInt(2, 7);
+          let b = randomInt(3, 9);
           if (a === b) b++;
           
-          const kpk = lcm(a, b);
-          const wrong1 = kpk + Math.min(a, b);
-          const wrong2 = kpk - Math.min(a, b);
+          const ansKpk = lcm(a, b);
+          const wrong1 = ansKpk + Math.min(a, b);
+          const wrong2 = Math.abs(ansKpk - Math.min(a, b)) || ansKpk + 1;
           const wrong3 = a * b + 2;
 
           state.daftarSoal.push({
-            teks: `Tentukan kelipatan persekutuan terkecil (paling pertama) dari **${a}** dan **${b}**!`,
-            pilihan: shuffle(Array.from(new Set([kpk, wrong1, wrong2, wrong3])).slice(0, 4)),
-            kunci: kpk,
-            penjelasan: `Kelipatan ${a}: ${a}, ${a*2}, ${a*3}... <br>Kelipatan ${b}: ${b}, ${b*2}, ${b*3}... <br>Kelipatan persekutuan pertama mereka adalah ${kpk}.`
+            teks: `Berapakah kelipatan persekutuan terkecil (pertama) dari **${a}** dan **${b}**?`,
+            pilihan: shuffle(Array.from(new Set([ansKpk, wrong1, wrong2, wrong3])).slice(0, 4)),
+            kunci: ansKpk,
+            penjelasan: "Kelipatan persekutuan adalah kelipatan yang sama dari dua bilangan atau lebih."
           });
         }
       } else if (state.misiAktif === 3) {
-        // MISI 3: Pohon Faktor & KPK
         document.getElementById("mission-title").innerText = "Misi 3: Pohon Faktor & KPK";
-        for (let i = 0; i < 5; i++) {
-          const pairs = [[6, 8], [8, 12], [10, 15], [12, 18], [9, 12], [15, 20], [6, 15]];
-          const selected = pairs[randomInt(0, pairs.length - 1)];
+        const pairs = [
+          [4, 6], [6, 8], [8, 12], [10, 15], [12, 18], 
+          [9, 12], [15, 20], [6, 15], [8, 20], [12, 16],
+          [14, 21], [18, 24]
+        ];
+        const shuffledPairs = shuffle([...pairs]);
+        
+        for (let i = 0; i < 10; i++) {
+          const selected = shuffledPairs[i % shuffledPairs.length];
           const n1 = selected[0], n2 = selected[1];
           const ansKpk = lcm(n1, n2);
+          const wrong1 = ansKpk + 4;
+          const wrong2 = Math.max(2, ansKpk / 2);
+          const wrong3 = ansKpk + 8;
 
           state.daftarSoal.push({
-            teks: `Gunakan analisis Pohon Faktor untuk menemukan KPK dari **${n1}** dan **${n2}**!`,
+            teks: `Gunakan analisis Pohon Faktor untuk menentukan KPK dari **${n1}** dan **${n2}**!`,
             treeData: { n1, n2 },
-            pilihan: shuffle([ansKpk, ansKpk + 6, ansKpk / 2, ansKpk + 12]),
+            pilihan: shuffle(Array.from(new Set([ansKpk, wrong1, wrong2, wrong3])).slice(0, 4)),
             kunci: ansKpk,
-            penjelasan: `Faktorisasi prima diperoleh dari rantai pohon faktor. Ambil semua faktor dengan pangkat terbesar untuk mendapatkan KPK = ${ansKpk}.`
+            penjelasan: "Pohon faktor membantu memfaktorkan bilangan menjadi perkalian faktor-faktor prima."
           });
         }
       }
@@ -261,13 +268,9 @@
       renderQuestion();
     }
 
-    function shuffle(array) {
-      return array.sort(() => Math.random() - 0.5);
-    }
-
     function renderQuestion() {
       const q = state.daftarSoal[state.indeksSoal];
-      document.getElementById("question-tracker").innerText = `Soal ${state.indeksSoal + 1} / 5`;
+      document.getElementById("question-tracker").innerText = `Soal ${state.indeksSoal + 1} / 10`;
       document.getElementById("question-text").innerHTML = q.teks.replace(/\*\*(.*?)\*\*/g, '<span class="text-amber-300 font-bold">$1</span>');
       
       const treeContainer = document.getElementById("tree-container");
@@ -306,7 +309,6 @@
       const q = state.daftarSoal[state.indeksSoal];
       const isCorrect = selected === q.kunci;
 
-      // Disable semua tombol pilihan setelah memilih
       const allBtns = document.querySelectorAll(".btn-option");
       allBtns.forEach(b => b.disabled = true);
 
@@ -320,19 +322,20 @@
         btn.classList.add("bg-emerald-500/80", "border-emerald-300");
         feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-emerald-950/80 border border-emerald-500/50";
         feedbackTitle.className = "font-pop text-xl text-emerald-300";
-        feedbackTitle.innerText = "🎉 JAWABAN BENAR! (+20 Poin)";
+        feedbackTitle.innerText = "🎉 JAWABAN BENAR! (+10 Poin)";
         
-        state.totalSkor += 20;
+        state.totalSkor += 10;
         state.jawabanBenar++;
-        if (state.misiAktif === 1) state.skorM1 += 20;
-        if (state.misiAktif === 2) state.skorM2 += 20;
-        if (state.misiAktif === 3) state.skorM3 += 20;
+        if (state.misiAktif === 1) state.skorM1 += 10;
+        if (state.misiAktif === 2) state.skorM2 += 10;
+        if (state.misiAktif === 3) state.skorM3 += 10;
 
       } else {
         btn.classList.add("bg-rose-500/80", "border-rose-300");
         feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-rose-950/80 border border-rose-500/50";
         feedbackTitle.className = "font-pop text-xl text-rose-300";
-        feedbackTitle.innerText = `❌ KURANG TEPAT! (Jawaban Benar: ${q.kunci})`;
+        // Kunci jawaban disembunyikan total dari peserta
+        feedbackTitle.innerText = "❌ JAWABAN KURANG TEPAT!";
         state.jawabanSalah++;
       }
 
@@ -342,7 +345,7 @@
 
     function nextQuestion() {
       state.indeksSoal++;
-      if (state.indeksSoal < 5) {
+      if (state.indeksSoal < 10) {
         renderQuestion();
       } else {
         if (state.misiAktif < 3) {
@@ -360,7 +363,7 @@
       
       document.getElementById("result-nama").innerText = state.nama;
       document.getElementById("final-score").innerText = state.totalSkor;
-      const acc = Math.round((state.jawabanBenar / 15) * 100);
+      const acc = Math.round((state.jawabanBenar / 30) * 100);
       document.getElementById("final-accuracy").innerText = `${acc}%`;
 
       sendResultToAppsScript();
