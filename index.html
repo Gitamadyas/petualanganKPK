@@ -31,26 +31,42 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 42px;
-      height: 42px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       background: #fbbf24;
       color: #1e1b4b;
       font-weight: bold;
       font-size: 1.1rem;
     }
+    .cube-group {
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 12px;
+      padding: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      align-items: center;
+    }
     .cube-box {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       background: #38bdf8;
       border: 2px solid #0284c7;
       border-radius: 6px;
-      display: inline-block;
-      margin: 2px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
   </style>
 </head>
-<body class="p-4 md:p-8 flex justify-center items-center">
+<body class="p-4 md:p-8 flex justify-center items-center relative">
+
+  <!-- TOMBOL MUSIK BAGKGROUND (MUTE/UNMUTE) -->
+  <button id="btn-audio" onclick="toggleAudio()" class="fixed top-4 right-4 z-50 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white p-3 rounded-full shadow-lg transition flex items-center gap-2">
+    <span id="audio-icon" class="text-xl">🎵</span>
+    <span id="audio-label" class="text-xs font-bold hidden md:inline">Musik: OFF</span>
+  </button>
 
   <div id="app" class="w-full max-w-3xl glass-card rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
     
@@ -66,25 +82,53 @@
       </div>
     </div>
 
-    <!-- SCREEN 1: LOGIN -->
+    <!-- SCREEN 1: LOGIN & PILIH LEVEL -->
     <div id="screen-login" class="text-center space-y-6">
       <div class="inline-block p-4 bg-amber-400 text-indigo-950 rounded-full font-pop text-4xl shadow-lg mb-2">
         🚀
       </div>
       <h1 class="font-pop text-3xl md:text-5xl text-amber-300 tracking-wide drop-shadow-md">
-        Petualangan KPK & Pohon Faktor
+        Petualangan Kelipatan
       </h1>
       <p class="text-indigo-100 text-sm md:text-base max-w-md mx-auto">
-        Selesaikan 3 Level Tantangan! Syarat lolos: <strong class="text-amber-300">Harus Jawab Benar Semua (20 Soal/Level)</strong>. Jika salah, kembali ke Level 1 dengan soal acak!
+        Syarat Lolos: <strong class="text-amber-300">Harus Jawab Benar Semua (10 Soal/Level)</strong>. Jika salah, kembali ke Level 1 dengan soal acak baru!
       </p>
 
-      <div class="space-y-4 max-w-sm mx-auto pt-4">
+      <div class="space-y-4 max-w-md mx-auto pt-2">
         <input id="input-nama" type="text" placeholder="Masukkan Nama Lengkapmu..." 
-          class="w-full px-5 py-3 rounded-2xl bg-white/20 border border-white/30 text-white placeholder-indigo-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center font-bold text-lg" />
-        <button onclick="startGame()" 
-          class="w-full py-4 bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-indigo-950 font-pop text-xl rounded-2xl shadow-xl transition transform active:scale-95">
-          Mulai Petualangan! 🎮
-        </button>
+          class="w-full px-5 py-3 rounded-2xl bg-white/20 border border-white/30 text-white placeholder-indigo-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center font-bold text-lg mb-4" />
+        
+        <!-- DAFTAR LEVEL DITAMPILKAN DI DEPAN -->
+        <div class="text-left space-y-3">
+          <p class="text-xs uppercase tracking-wider text-indigo-200 text-center font-bold">Pilih Level Misi:</p>
+          
+          <button id="btn-lvl-1" onclick="selectLevel(1)" 
+            class="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition">
+            <div class="text-left">
+              <span class="font-pop text-lg block text-amber-300">Level 1: Pemfaktoran Kubus & Kelipatan</span>
+              <span class="text-xs text-emerald-100">10 Soal • Visual Blok Kubus</span>
+            </div>
+            <span class="text-2xl">🔓</span>
+          </button>
+
+          <button id="btn-lvl-2" onclick="selectLevel(2)" disabled
+            class="w-full p-4 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
+            <div class="text-left">
+              <span class="font-pop text-lg block">Level 2: Kelipatan Persekutuan (KPK)</span>
+              <span class="text-xs">10 Soal • Soal Cerita & Konsep</span>
+            </div>
+            <span class="text-2xl">🔒</span>
+          </button>
+
+          <button id="btn-lvl-3" onclick="selectLevel(3)" disabled
+            class="w-full p-4 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
+            <div class="text-left">
+              <span class="font-pop text-lg block">Level 3: Pohon Faktor Interaktif</span>
+              <span class="text-xs">10 Soal • Isian Cabang Pohon Faktor</span>
+            </div>
+            <span class="text-2xl">🔒</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -92,7 +136,7 @@
     <div id="screen-game" class="hidden space-y-6">
       <div class="flex justify-between items-center text-sm font-semibold text-indigo-200">
         <span id="level-title" class="bg-indigo-900/60 px-4 py-1.5 rounded-full border border-indigo-400/30 text-amber-300 font-bold">Level 1</span>
-        <span id="question-tracker">Soal 1 / 20</span>
+        <span id="question-tracker">Soal 1 / 10</span>
       </div>
 
       <!-- AREA SOAL -->
@@ -102,8 +146,8 @@
         </div>
 
         <!-- CONTAINER VISUAL KUBUS / KOTAK (Level 1) -->
-        <div id="cube-container" class="hidden flex flex-wrap justify-center gap-1 p-4 bg-white/5 rounded-xl">
-          <!-- Render Visual Blok Kubus -->
+        <div id="cube-container" class="hidden flex flex-wrap justify-center gap-3 p-4 bg-white/5 rounded-xl">
+          <!-- Render Kelompok Blok Kubus -->
         </div>
         
         <!-- POHON FAKTOR CONTAINER (Level 3) -->
@@ -169,7 +213,7 @@
 
   <script>
     const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzVgiP9hOOjgXjFe4DJVMcg9plcv9yxREGRJJhe4smomIt8px5Po_a541eFPZxtIonX/exec";
-    const TOTAL_SOAL_PER_LEVEL = 20;
+    const TOTAL_SOAL_PER_LEVEL = 10;
 
     let state = {
       nama: "",
@@ -180,12 +224,96 @@
       skorL2: 0,
       skorL3: 0,
       levelAktif: 1,
+      maxUnlockedLevel: 1,
       indeksSoal: 0,
       daftarSoal: [],
-      isLevelFailed: false,
-      gameCompleted: false
+      isLevelFailed: false
     };
 
+    // --- SYSTEM AUDIO / SYNTHESIZER ---
+    let audioCtx = null;
+    let isMuted = true;
+    let bgmInterval = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function toggleAudio() {
+      initAudio();
+      isMuted = !isMuted;
+      const icon = document.getElementById("audio-icon");
+      const label = document.getElementById("audio-label");
+      
+      if (!isMuted) {
+        icon.innerText = "🔊";
+        label.innerText = "Musik: ON";
+        startBGM();
+      } else {
+        icon.innerText = "🔇";
+        label.innerText = "Musik: OFF";
+        stopBGM();
+      }
+    }
+
+    function playTone(freq, type, duration, delay = 0) {
+      if (isMuted || !audioCtx) return;
+      setTimeout(() => {
+        try {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = type;
+          osc.frequency.value = freq;
+          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+          osc.stop(audioCtx.currentTime + duration);
+        } catch(e){}
+      }, delay);
+    }
+
+    function playSFXCorrect() {
+      playTone(523.25, "sine", 0.1, 0);   // C5
+      playTone(659.25, "sine", 0.15, 80); // E5
+      playTone(783.99, "sine", 0.3, 160); // G5
+    }
+
+    function playSFXWrong() {
+      playTone(220, "sawtooth", 0.2, 0);  // A3
+      playTone(196, "sawtooth", 0.3, 150); // G3
+    }
+
+    function playSFXFanfare() {
+      playTone(523.25, "triangle", 0.15, 0);
+      playTone(659.25, "triangle", 0.15, 120);
+      playTone(783.99, "triangle", 0.15, 240);
+      playTone(1046.50, "triangle", 0.5, 360);
+    }
+
+    function startBGM() {
+      if (bgmInterval || isMuted) return;
+      const notes = [261.63, 329.63, 392.00, 329.63, 293.66, 349.23, 440.00, 349.23];
+      let step = 0;
+      bgmInterval = setInterval(() => {
+        if (!isMuted) {
+          playTone(notes[step % notes.length], "triangle", 0.2);
+          step++;
+        }
+      }, 350);
+    }
+
+    function stopBGM() {
+      if (bgmInterval) {
+        clearInterval(bgmInterval);
+        bgmInterval = null;
+      }
+    }
+
+    // --- GAME LOGIC ---
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const lcm = (a, b) => (a * b) / gcd(a, b);
     const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -195,11 +323,7 @@
     }
 
     function triggerCelebration() {
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
-      });
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
     }
 
     function getPrimeFactors(n) {
@@ -216,20 +340,32 @@
       return factors;
     }
 
-    function startGame() {
+    function updateLevelButtons() {
+      const b2 = document.getElementById("btn-lvl-2");
+      const b3 = document.getElementById("btn-lvl-3");
+
+      if (state.maxUnlockedLevel >= 2) {
+        b2.disabled = false;
+        b2.className = "w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
+        b2.querySelector("span:last-child").innerText = "🔓";
+      }
+      if (state.maxUnlockedLevel >= 3) {
+        b3.disabled = false;
+        b3.className = "w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
+        b3.querySelector("span:last-child").innerText = "🔓";
+      }
+    }
+
+    function selectLevel(lvl) {
       const inputNama = document.getElementById("input-nama").value.trim();
-      if (!inputNama) return alert("Masukkan namamu dulu ya!");
+      if (!inputNama) return alert("Masukkan namamu terlebih dahulu ya!");
       
+      initAudio();
       state.nama = inputNama;
-      state.totalSkor = 0;
-      state.skorL1 = 0;
-      state.skorL2 = 0;
-      state.skorL3 = 0;
-      state.levelAktif = 1;
-      state.gameCompleted = false;
+      state.levelAktif = lvl;
 
       document.getElementById("player-display").innerText = state.nama;
-      document.getElementById("score-display").innerText = "0";
+      document.getElementById("score-display").innerText = state.totalSkor;
       
       document.getElementById("screen-login").classList.add("hidden");
       document.getElementById("header-stats").classList.remove("hidden");
@@ -248,48 +384,41 @@
       if (state.levelAktif === 1) {
         document.getElementById("level-title").innerText = "Level 1: Pemfaktoran Kubus & Kelipatan";
         for (let i = 0; i < TOTAL_SOAL_PER_LEVEL; i++) {
-          const type = randomInt(1, 3);
+          const type = randomInt(1, 2);
           
           if (type === 1) {
-            const rows = randomInt(2, 5);
-            const cols = randomInt(2, 6);
-            const totalCubes = rows * cols;
+            // Visualisasi Kelompok Kubus
+            const groups = randomInt(2, 5);
+            const cubesPerGroup = randomInt(2, 6);
+            const totalCubes = groups * cubesPerGroup;
             
             const wrong1 = totalCubes + randomInt(1, 3);
-            const wrong2 = Math.max(1, totalCubes - randomInt(1, 3));
-            const wrong3 = (rows + 1) * cols;
+            const wrong2 = Math.max(2, totalCubes - randomInt(1, 3));
+            const wrong3 = (groups + 1) * cubesPerGroup;
 
             state.daftarSoal.push({
-              teks: `Terdapat blok kubus berukuran **${rows} baris** dan **${cols} kolom**. Berapakah total kubus dan faktor perkaliannya?`,
-              cubeCount: totalCubes,
+              teks: `Terdapat **${groups} kelompok** kubus, dimana masing-masing kelompok berisi **${cubesPerGroup} kubus**. Berapakah total kubus yang ada (faktor **${groups} × ${cubesPerGroup}**)?`,
+              cubeData: { groups, cubesPerGroup },
               pilihan: shuffle(Array.from(new Set([totalCubes, wrong1, wrong2, wrong3])).slice(0, 4)),
               kunci: totalCubes
             });
-          } else if (type === 2) {
-            const base = randomInt(2, 10);
+          } else {
+            // Kelipatan
+            const base = randomInt(2, 9);
             const mult = base * randomInt(2, 8);
             const wrong1 = mult + 1;
             const wrong2 = mult - 1;
             const wrong3 = mult + 2;
 
             state.daftarSoal.push({
-              teks: `Manakah dari bilangan berikut yang merupakan kelipatan dari **${base}**?`,
+              teks: `Manakah angka di bawah ini yang merupakan kelipatan dari **${base}**?`,
               pilihan: shuffle(Array.from(new Set([mult, wrong1, wrong2, wrong3])).slice(0, 4)),
               kunci: mult
-            });
-          } else {
-            const base = randomInt(3, 9);
-            const k1 = base * 1, k2 = base * 2, k3 = base * 3, k4 = base * 4;
-            
-            state.daftarSoal.push({
-              teks: `Lengkapi barisan kelipatan loncat berikut: **${k1}, ${k2}, ___, ${k4}**`,
-              pilihan: shuffle(Array.from(new Set([k3, k3 + 2, k3 - 1, k3 + 1])).slice(0, 4)),
-              kunci: k3
             });
           }
         }
       } else if (state.levelAktif === 2) {
-        document.getElementById("level-title").innerText = "Level 2: Kelipatan Persekutuan & Soal Cerita";
+        document.getElementById("level-title").innerText = "Level 2: Kelipatan Persekutuan (KPK)";
         for (let i = 0; i < TOTAL_SOAL_PER_LEVEL; i++) {
           const isStory = i % 2 === 0;
           const a = randomInt(2, 8);
@@ -303,7 +432,7 @@
 
           if (isStory) {
             state.daftarSoal.push({
-              teks: `Lani berlatih renang setiap **${a} hari** sekali dan Dayu setiap **${b} hari** sekali. Pada hari ke berapa mereka akan berenang bersama pertama kali?`,
+              teks: `Siti berlatih musik setiap **${a} hari** sekali dan Beni setiap **${b} hari** sekali. Pada hari ke berapa mereka akan latihan bersama pertama kali?`,
               pilihan: shuffle(Array.from(new Set([kpkVal, wrong1, wrong2, wrong3])).slice(0, 4)),
               kunci: kpkVal
             });
@@ -317,7 +446,6 @@
         }
       } else if (state.levelAktif === 3) {
         document.getElementById("level-title").innerText = "Level 3: Misi Pohon Faktor Interaktif";
-        
         const compositeNumbers = [12, 18, 20, 24, 28, 30, 32, 36, 40, 42, 45, 48, 50, 54, 60];
         
         for (let i = 0; i < TOTAL_SOAL_PER_LEVEL; i++) {
@@ -330,7 +458,7 @@
 
           if (isFillIn) {
             state.daftarSoal.push({
-              teks: `Lengkapi cabang Pohon Faktor dari bilangan **${num}** di bawah ini!`,
+              teks: `Lengkapi cabang Pohon Faktor dari bilangan **${num}** berikut!`,
               isTreeFill: true,
               treeData: { num, p1, rem1 },
               kunci: rem1
@@ -341,7 +469,7 @@
             const wrong3 = p1 > 2 ? p1 - 1 : p1 + 3;
 
             state.daftarSoal.push({
-              teks: `Berdasarkan pembagian pohon faktor untuk bilangan **${num}**, manakah faktor prima terkecil pertamanya?`,
+              teks: `Berdasarkan pohon faktor untuk **${num}**, manakah pembagi faktor prima terutamanya?`,
               isTreeFill: false,
               treeData: { num, p1, rem1 },
               pilihan: shuffle(Array.from(new Set([p1, wrong1, wrong2, wrong3])).slice(0, 4)),
@@ -370,16 +498,23 @@
       optContainer.classList.add("hidden");
       document.getElementById("feedback-box").classList.add("hidden");
 
-      if (q.cubeCount) {
+      // Render Visual Kubus
+      if (q.cubeData) {
         cubeContainer.classList.remove("hidden");
         cubeContainer.innerHTML = "";
-        for (let c = 0; c < q.cubeCount; c++) {
-          const div = document.createElement("div");
-          div.className = "cube-box animate-pulse";
-          cubeContainer.appendChild(div);
+        for (let g = 0; g < q.cubeData.groups; g++) {
+          const groupDiv = document.createElement("div");
+          groupDiv.className = "cube-group";
+          for (let c = 0; c < q.cubeData.cubesPerGroup; c++) {
+            const box = document.createElement("div");
+            box.className = "cube-box";
+            groupDiv.appendChild(box);
+          }
+          cubeContainer.appendChild(groupDiv);
         }
       }
 
+      // Render Pohon Faktor
       if (q.treeData) {
         treeContainer.classList.remove("hidden");
         const { num, p1, rem1 } = q.treeData;
@@ -457,6 +592,7 @@
       feedbackBox.classList.remove("hidden");
 
       if (isCorrect) {
+        playSFXCorrect();
         feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-emerald-950/80 border border-emerald-500/50";
         feedbackTitle.className = "font-pop text-xl text-emerald-300";
         feedbackTitle.innerText = "🎉 JAWABAN BENAR! (+10 Poin)";
@@ -467,22 +603,22 @@
         if (state.levelAktif === 2) state.skorL2 += 10;
         if (state.levelAktif === 3) state.skorL3 += 10;
 
-        feedbackExplain.innerText = "Luar biasa! Kamu menjawab dengan tepat.";
+        feedbackExplain.innerText = "Luar biasa! Jawabanmu sangat tepat.";
       } else {
+        playSFXWrong();
         feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-rose-950/80 border border-rose-500/50";
         feedbackTitle.className = "font-pop text-xl text-rose-300";
         feedbackTitle.innerText = "❌ JAWABAN KURANG TEPAT!";
         
         state.jawabanSalahLevel++;
-        state.isLevelFailed = true; // Langsung ditandai gagal karena ada 1 salah
-        feedbackExplain.innerText = "Sayang sekali jawabanmu kurang tepat. Kamu harus menjawab benar semua untuk lolos!";
+        state.isLevelFailed = true;
+        feedbackExplain.innerText = "Sayang sekali jawabanmu kurang tepat. Harus benar semua (10/10) untuk lolos level!";
       }
 
       document.getElementById("score-display").innerText = state.totalSkor;
     }
 
     function nextQuestion() {
-      // Jika salah di tengah jalan, langsung ke layar hasil gagal
       if (state.isLevelFailed) {
         finishLevel(false);
         return;
@@ -492,7 +628,6 @@
       if (state.indeksSoal < TOTAL_SOAL_PER_LEVEL) {
         renderQuestion();
       } else {
-        // Jika sampai akhir dan tidak pernah salah = LULUS LEVEL
         finishLevel(true);
       }
     }
@@ -512,30 +647,35 @@
       document.getElementById("final-score").innerText = state.totalSkor;
 
       if (isPassed) {
+        playSFXFanfare();
         triggerCelebration();
         statusLbl.innerText = `Lulus Level ${state.levelAktif}!`;
         statusLbl.className = "font-pop text-xl text-emerald-400";
 
         if (state.levelAktif < 3) {
+          if (state.maxUnlockedLevel < state.levelAktif + 1) {
+            state.maxUnlockedLevel = state.levelAktif + 1;
+          }
+          updateLevelButtons();
+
           icon.innerText = "🎉";
-          title.innerText = `SELEBRASI LEVEL ${state.levelAktif} TUNTAS!`;
-          desc.innerText = `Selamat! Kamu menjawab BENAR SEMUA 20 soal di Level ${state.levelAktif}. Siapkan dirimu untuk masuk ke Level ${state.levelAktif + 1}!`;
+          title.innerText = `LEVEL ${state.levelAktif} TUNTAS 100%!`;
+          desc.innerText = `Selamat! Kamu menjawab BENAR SEMUA 10 soal di Level ${state.levelAktif}. Level ${state.levelAktif + 1} kini telah terbuka!`;
           btnAction.innerText = `🚀 Lanjut ke Level ${state.levelAktif + 1}`;
         } else {
-          state.gameCompleted = true;
           icon.innerText = "👑";
-          title.innerText = "JUARA UTAMA KPK & POHON FAKTOR!";
-          desc.innerText = "HEBAT LUAR BIASA! Kamu berhasil menuntaskan SELURUH Level (1, 2, dan 3) tanpa ada satu pun jawaban salah!";
-          btnAction.innerText = "🔄 Main Lagi dari Awal";
+          title.innerText = "JUARA PETUALANGAN KELIPATAN!";
+          desc.innerText = "HEBAT! Kamu berhasil menyelesaikan seluruh level tanpa ada satu pun kesalahan!";
+          btnAction.innerText = "🏠 Kembali ke Menu Utama";
         }
       } else {
         icon.innerText = "💔";
         title.innerText = `GAGAL DI LEVEL ${state.levelAktif}`;
         title.className = "font-pop text-3xl text-rose-400";
-        desc.innerText = `Kamu harus menjawab 100% BENAR (20/20) untuk membuka level selanjutnya. Kamu akan diulang kembali dari Level 1 dengan soal yang diacak baru. Tetap semangat!`;
+        desc.innerText = `Kamu harus menjawab 100% BENAR (10/10) untuk lulus. Kamu akan diulang kembali dari Level 1 dengan soal yang diacak baru!`;
         statusLbl.innerText = "Gagal (Ada Salah)";
         statusLbl.className = "font-pop text-xl text-rose-400";
-        btnAction.innerText = "🔄 Kembali ke Level 1 (Soal Acak)";
+        btnAction.innerText = "🔄 Ulangi dari Level 1 (Soal Acak)";
       }
 
       sendUpdateToSpreadsheet(isPassed);
@@ -545,26 +685,25 @@
       document.getElementById("screen-result").classList.add("hidden");
 
       if (!state.isLevelFailed && state.levelAktif < 3) {
-        // Lanjut ke Level berikutnya
         state.levelAktif++;
         document.getElementById("screen-game").classList.remove("hidden");
         generateLevelQuestions();
       } else {
-        // Gagal / Ulang dari Level 1 awal
+        // Kembali / Ulang ke Level 1
         state.totalSkor = 0;
         state.skorL1 = 0;
         state.skorL2 = 0;
         state.skorL3 = 0;
         state.levelAktif = 1;
         document.getElementById("score-display").innerText = "0";
-        document.getElementById("screen-game").classList.remove("hidden");
-        generateLevelQuestions();
+        document.getElementById("screen-login").classList.remove("hidden");
+        document.getElementById("header-stats").classList.add("hidden");
       }
     }
 
     function sendUpdateToSpreadsheet(isPassed) {
       const statusText = document.getElementById("send-status");
-      statusText.innerText = "Mengirim data perkembangan ke Google Sheets...";
+      statusText.innerText = "Mengirim perkembangan ke Google Sheets...";
 
       const payload = {
         tanggal: new Date().toLocaleString("id-ID"),
@@ -585,12 +724,12 @@
         body: JSON.stringify(payload)
       })
       .then(() => {
-        statusText.innerText = "✅ Perkembangan terbaru berhasil terkirim ke Google Sheets!";
+        statusText.innerText = "✅ Rekap perkembangan berhasil terkirim ke Google Sheets!";
         statusText.classList.remove("animate-pulse");
         statusText.classList.add("text-emerald-300");
       })
       .catch(err => {
-        statusText.innerText = "⚠️ Terjadi masalah koneksi, namun game tetap berjalan lancar.";
+        statusText.innerText = "⚠️ Terjadi masalah koneksi, namun game tetap berjalan lokal.";
       });
     }
   </script>
