@@ -64,8 +64,8 @@
 
   <!-- TOMBOL MUSIK BACKGROUND & SOUND EFFECT -->
   <button id="btn-audio" onclick="toggleAudio()" class="fixed top-4 right-4 z-50 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white p-3 rounded-full shadow-lg transition flex items-center gap-2">
-    <span id="audio-icon" class="text-xl">🎵</span>
-    <span id="audio-label" class="text-xs font-bold hidden md:inline">Musik: OFF</span>
+    <span id="audio-icon" class="text-xl">🔊</span>
+    <span id="audio-label" class="text-xs font-bold hidden md:inline">Musik: ON</span>
   </button>
 
   <div id="app" class="w-full max-w-3xl glass-card rounded-3xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
@@ -106,7 +106,7 @@
             class="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer">
             <div class="text-left">
               <span class="font-pop text-lg block text-amber-300">Level 1: Pemfaktoran Kubus & Kelipatan</span>
-              <span class="text-xs text-emerald-100">10 Soal • Visual Blok Kubus</span>
+              <span class="text-xs text-emerald-100">10 Soal • Faktor Perkalian Blok Kubus</span>
             </div>
             <span class="text-2xl">🔓</span>
           </button>
@@ -232,12 +232,15 @@
 
     // --- SYSTEM AUDIO / SYNTHESIZER ---
     let audioCtx = null;
-    let isMuted = true;
+    let isMuted = false; // BGM langsung menyala aktif
     let bgmInterval = null;
 
     function initAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
       }
     }
 
@@ -361,6 +364,8 @@
       if (!inputNama) return alert("Masukkan namamu terlebih dahulu ya!");
       
       initAudio();
+      startBGM();
+
       state.nama = inputNama;
       state.levelAktif = lvl;
 
@@ -387,20 +392,21 @@
           const type = randomInt(1, 2);
           
           if (type === 1) {
-            // Visualisasi Kelompok Kubus
+            // Visualisasi Kelompok Kubus -> Pertanyaan FAKTOR
             const groups = randomInt(2, 5);
             const cubesPerGroup = randomInt(2, 6);
             const totalCubes = groups * cubesPerGroup;
             
-            const wrong1 = totalCubes + randomInt(1, 3);
-            const wrong2 = Math.max(2, totalCubes - randomInt(1, 3));
-            const wrong3 = (groups + 1) * cubesPerGroup;
+            const correctOpt = `${groups} dan ${cubesPerGroup}`;
+            const wrongOpt1 = `${groups + 1} dan ${cubesPerGroup}`;
+            const wrongOpt2 = `${groups} dan ${cubesPerGroup + 1}`;
+            const wrongOpt3 = `${Math.max(1, groups - 1)} dan ${cubesPerGroup + 2}`;
 
             state.daftarSoal.push({
-              teks: `Terdapat **${groups} kelompok** kubus, dimana masing-masing kelompok berisi **${cubesPerGroup} kubus**. Berapakah total kubus yang ada (faktor dari total ini adalah **${groups} dan ${cubesPerGroup}**)?`,
+              teks: `Perhatikan gambar di bawah! Terdapat **${totalCubes} total kubus**. Berapakah pasangan **faktor** pembentuk kubus dari gambar kelompok di bawah ini?`,
               cubeData: { groups, cubesPerGroup },
-              pilihan: shuffle(Array.from(new Set([totalCubes, wrong1, wrong2, wrong3])).slice(0, 4)),
-              kunci: totalCubes
+              pilihan: shuffle(Array.from(new Set([correctOpt, wrongOpt1, wrongOpt2, wrongOpt3])).slice(0, 4)),
+              kunci: correctOpt
             });
           } else {
             // Kelipatan Dasar
@@ -603,7 +609,7 @@
         if (state.levelAktif === 2) state.skorL2 += 10;
         if (state.levelAktif === 3) state.skorL3 += 10;
 
-        feedbackExplain.innerText = "Luar biasa! Jawabanmu sangat tepat.";
+        feedbackExplain.innerText = "Luar biasa! Analisis faktormu sangat tepat.";
       } else {
         playSFXWrong();
         feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-rose-950/80 border border-rose-500/50";
