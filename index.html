@@ -31,8 +31,8 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 45px;
-      height: 45px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
       background: #fbbf24;
       color: #1e1b4b;
@@ -96,35 +96,44 @@
 
       <div class="space-y-4 max-w-md mx-auto pt-2">
         <input id="input-nama" type="text" placeholder="Masukkan Nama Lengkapmu..." 
-          class="w-full px-5 py-3 rounded-2xl bg-white/20 border border-white/30 text-white placeholder-indigo-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center font-bold text-lg mb-4" />
+          class="w-full px-5 py-3 rounded-2xl bg-white/20 border border-white/30 text-white placeholder-indigo-200 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center font-bold text-lg mb-2" />
         
         <!-- DAFTAR LEVEL DITAMPILKAN DI DEPAN -->
-        <div class="text-left space-y-3">
+        <div class="text-left space-y-2.5">
           <p class="text-xs uppercase tracking-wider text-indigo-200 text-center font-bold">Pilih Level Misi:</p>
           
           <button id="btn-lvl-1" onclick="selectLevel(1)" 
-            class="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer">
+            class="w-full p-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer">
             <div class="text-left">
-              <span class="font-pop text-lg block text-amber-300">Level 1: Pemfaktoran Kubus & Kelipatan</span>
+              <span class="font-pop text-base block text-amber-300">Level 1: Pemfaktoran Kubus & Kelipatan</span>
               <span class="text-xs text-emerald-100">10 Soal • Faktor Perkalian Blok Kubus</span>
             </div>
             <span class="text-2xl">🔓</span>
           </button>
 
           <button id="btn-lvl-2" onclick="selectLevel(2)" disabled
-            class="w-full p-4 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
+            class="w-full p-3.5 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
             <div class="text-left">
-              <span class="font-pop text-lg block">Level 2: Kelipatan Persekutuan (KPK)</span>
+              <span class="font-pop text-base block">Level 2: Kelipatan Persekutuan (KPK)</span>
               <span class="text-xs">10 Soal • Soal Cerita & Konsep</span>
             </div>
             <span class="text-2xl">🔒</span>
           </button>
 
           <button id="btn-lvl-3" onclick="selectLevel(3)" disabled
-            class="w-full p-4 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
+            class="w-full p-3.5 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
             <div class="text-left">
-              <span class="font-pop text-lg block">Level 3: Pohon Faktor Interaktif</span>
-              <span class="text-xs">10 Soal • Isian Cabang Pohon Faktor</span>
+              <span class="font-pop text-base block">Level 3: Faktor Prima & Pohon Faktor</span>
+              <span class="text-xs">10 Soal • Campuran Isian & Pilihan</span>
+            </div>
+            <span class="text-2xl">🔒</span>
+          </button>
+
+          <button id="btn-lvl-4" onclick="selectLevel(4)" disabled
+            class="w-full p-3.5 bg-white/5 border border-white/10 text-white/40 font-bold rounded-2xl flex justify-between items-center cursor-not-allowed">
+            <div class="text-left">
+              <span class="font-pop text-base block">Level 4: Misi Akhir KPK Pohon Faktor (Esai)</span>
+              <span class="text-xs">10 Soal • Isian Mandiri KPK Dua Pohon</span>
             </div>
             <span class="text-2xl">🔒</span>
           </button>
@@ -145,23 +154,23 @@
           <!-- Soal dimasukkan via JS -->
         </div>
 
-        <!-- CONTAINER VISUAL KUBUS / KOTAK (Level 1) -->
+        <!-- CONTAINER VISUAL KUBUS (Level 1) -->
         <div id="cube-container" class="hidden flex flex-wrap justify-center gap-3 p-4 bg-white/5 rounded-xl">
           <!-- Render Kelompok Blok Kubus -->
         </div>
         
-        <!-- POHON FAKTOR CONTAINER (Level 3) -->
+        <!-- POHON FAKTOR CONTAINER (Level 3 & Level 4) -->
         <div id="tree-container" class="hidden flex-col items-center justify-center p-4 bg-white/5 rounded-xl space-y-3">
           <!-- Render Pohon Faktor Interaktif -->
         </div>
       </div>
 
-      <!-- INPUT FIELD FOR TREE NODE (Hanya untuk Isian Pohon Faktor) -->
+      <!-- INPUT FIELD FOR ESSAY / TREE NODE (Level 3 Isian & Level 4 Esai) -->
       <div id="tree-input-container" class="hidden space-y-3 text-center">
-        <p class="text-sm text-amber-200 font-semibold">Isi nilai yang kosong pada Pohon Faktor di atas:</p>
+        <p id="input-label" class="text-sm text-amber-200 font-semibold">Ketikkan nilai yang tepat di bawah ini:</p>
         <div class="flex justify-center gap-2">
-          <input id="input-node-val" type="number" placeholder="Jawaban..." class="w-32 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-400" />
-          <button onclick="checkTreeAnswer()" class="px-5 py-2 bg-amber-400 text-indigo-950 font-pop rounded-xl hover:bg-amber-300">Kirim</button>
+          <input id="input-node-val" type="number" placeholder="Jawaban..." class="w-36 px-4 py-2 rounded-xl bg-white/20 border border-white/30 text-white font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-400 text-lg" />
+          <button onclick="checkEssayAnswer()" class="px-6 py-2 bg-amber-400 text-indigo-950 font-pop rounded-xl hover:bg-amber-300 transition">Kirim</button>
         </div>
       </div>
 
@@ -223,6 +232,7 @@
       skorL1: 0,
       skorL2: 0,
       skorL3: 0,
+      skorL4: 0,
       levelAktif: 1,
       maxUnlockedLevel: 1,
       indeksSoal: 0,
@@ -232,7 +242,7 @@
 
     // --- SYSTEM AUDIO / SYNTHESIZER ---
     let audioCtx = null;
-    let isMuted = false; // BGM langsung menyala aktif
+    let isMuted = false;
     let bgmInterval = null;
 
     function initAudio() {
@@ -346,16 +356,22 @@
     function updateLevelButtons() {
       const b2 = document.getElementById("btn-lvl-2");
       const b3 = document.getElementById("btn-lvl-3");
+      const b4 = document.getElementById("btn-lvl-4");
 
       if (state.maxUnlockedLevel >= 2) {
         b2.disabled = false;
-        b2.className = "w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
+        b2.className = "w-full p-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
         b2.querySelector("span:last-child").innerText = "🔓";
       }
       if (state.maxUnlockedLevel >= 3) {
         b3.disabled = false;
-        b3.className = "w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
+        b3.className = "w-full p-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
         b3.querySelector("span:last-child").innerText = "🔓";
+      }
+      if (state.maxUnlockedLevel >= 4) {
+        b4.disabled = false;
+        b4.className = "w-full p-3.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer";
+        b4.querySelector("span:last-child").innerText = "🔓";
       }
     }
 
@@ -390,9 +406,7 @@
         document.getElementById("level-title").innerText = "Level 1: Pemfaktoran Kubus & Kelipatan";
         for (let i = 0; i < TOTAL_SOAL_PER_LEVEL; i++) {
           const type = randomInt(1, 2);
-          
           if (type === 1) {
-            // Visualisasi Kelompok Kubus -> Pertanyaan FAKTOR
             const groups = randomInt(2, 5);
             const cubesPerGroup = randomInt(2, 6);
             const totalCubes = groups * cubesPerGroup;
@@ -409,7 +423,6 @@
               kunci: correctOpt
             });
           } else {
-            // Kelipatan Dasar
             const base = randomInt(2, 9);
             const mult = base * randomInt(2, 8);
             const wrong1 = mult + 1;
@@ -451,7 +464,7 @@
           }
         }
       } else if (state.levelAktif === 3) {
-        document.getElementById("level-title").innerText = "Level 3: Misi Pohon Faktor Interaktif";
+        document.getElementById("level-title").innerText = "Level 3: Faktor Prima & Pohon Faktor";
         const compositeNumbers = [12, 18, 20, 24, 28, 30, 32, 36, 40, 42, 45, 48, 50, 54, 60];
         
         for (let i = 0; i < TOTAL_SOAL_PER_LEVEL; i++) {
@@ -459,29 +472,68 @@
           const factors = getPrimeFactors(num);
           const p1 = factors[0];
           const rem1 = num / p1;
+          const qType = randomInt(1, 3);
 
-          const isFillIn = i % 2 === 0;
-
-          if (isFillIn) {
+          if (qType === 1) {
+            // Isian Pohon Faktor
             state.daftarSoal.push({
               teks: `Lengkapi cabang Pohon Faktor dari bilangan **${num}** berikut!`,
-              isTreeFill: true,
+              isEssay: true,
               treeData: { num, p1, rem1 },
               kunci: rem1
             });
-          } else {
+          } else if (qType === 2) {
+            // Pilihan Ganda Faktor Prima Terkecil
             const wrong1 = p1 + 1;
             const wrong2 = p1 + 2;
             const wrong3 = p1 > 2 ? p1 - 1 : p1 + 3;
 
             state.daftarSoal.push({
-              teks: `Berdasarkan pohon faktor untuk **${num}**, manakah pembagi faktor prima terutamanya?`,
-              isTreeFill: false,
+              teks: `Berdasarkan pembagian pohon faktor untuk bilangan **${num}**, berapakah faktor prima terkecil pertamanya?`,
+              isEssay: false,
               treeData: { num, p1, rem1 },
               pilihan: shuffle(Array.from(new Set([p1, wrong1, wrong2, wrong3])).slice(0, 4)),
               kunci: p1
             });
+          } else {
+            // Pilihan Ganda Jumlah Faktor Prima Unik
+            const uniquePrimesCount = new Set(factors).size;
+            const w1 = uniquePrimesCount + 1;
+            const w2 = Math.max(1, uniquePrimesCount - 1);
+            const w3 = uniquePrimesCount + 2;
+
+            state.daftarSoal.push({
+              teks: `Berapakah banyaknya jenis faktor prima unik dari bilangan **${num}**?`,
+              isEssay: false,
+              pilihan: shuffle(Array.from(new Set([uniquePrimesCount, w1, w2, w3])).slice(0, 4)),
+              kunci: uniquePrimesCount
+            });
           }
+        }
+      } else if (state.levelAktif === 4) {
+        document.getElementById("level-title").innerText = "Level 4: Misi Akhir KPK Pohon Faktor (Esai)";
+        const pairs = [
+          [4, 6], [6, 8], [8, 12], [10, 15], [12, 18], 
+          [9, 12], [15, 20], [6, 15], [8, 20], [12, 16]
+        ];
+        const shuffledPairs = shuffle([...pairs]);
+
+        for (let i = 0; i < TOTAL_SOAL_PER_LEVEL; i++) {
+          const [n1, n2] = shuffledPairs[i % shuffledPairs.length];
+          const kpkVal = lcm(n1, n2);
+
+          const f1 = getPrimeFactors(n1);
+          const f2 = getPrimeFactors(n2);
+
+          state.daftarSoal.push({
+            teks: `Analisislah kedua Pohon Faktor di bawah ini. Ketikkan nilai **KPK** dari bilangan **${n1}** dan **${n2}**!`,
+            isEssay: true,
+            doubleTreeData: { 
+              n1, f1_p1: f1[0], f1_rem: n1 / f1[0],
+              n2, f2_p1: f2[0], f2_rem: n2 / f2[0] 
+            },
+            kunci: kpkVal
+          });
         }
       }
 
@@ -504,7 +556,7 @@
       optContainer.classList.add("hidden");
       document.getElementById("feedback-box").classList.add("hidden");
 
-      // Render Visual Kubus
+      // Render Visual Kubus (Level 1)
       if (q.cubeData) {
         cubeContainer.classList.remove("hidden");
         cubeContainer.innerHTML = "";
@@ -520,11 +572,11 @@
         }
       }
 
-      // Render Pohon Faktor
+      // Render Satu Pohon Faktor (Level 3)
       if (q.treeData) {
         treeContainer.classList.remove("hidden");
         const { num, p1, rem1 } = q.treeData;
-        const rightNodeDisplay = q.isTreeFill ? `<span class="text-rose-400 font-extrabold text-xl">?</span>` : rem1;
+        const rightNodeDisplay = q.isEssay ? `<span class="text-rose-400 font-extrabold text-xl">?</span>` : rem1;
 
         treeContainer.innerHTML = `
           <div class="flex flex-col items-center">
@@ -542,14 +594,47 @@
             </div>
           </div>
         `;
-
-        if (q.isTreeFill) {
-          treeInputContainer.classList.remove("hidden");
-          document.getElementById("input-node-val").value = "";
-        }
       }
 
-      if (!q.isTreeFill) {
+      // Render Dua Pohon Faktor untuk KPK (Level 4)
+      if (q.doubleTreeData) {
+        treeContainer.classList.remove("hidden");
+        const dt = q.doubleTreeData;
+
+        treeContainer.innerHTML = `
+          <div class="flex justify-around w-full max-w-md my-2">
+            <!-- Pohon A -->
+            <div class="flex flex-col items-center">
+              <div class="tree-node shadow-lg mb-1">${dt.n1}</div>
+              <div class="w-12 h-0.5 bg-amber-200/60 my-1"></div>
+              <div class="flex justify-between w-28">
+                <div class="tree-node bg-emerald-400 text-indigo-950 text-sm">${dt.f1_p1}</div>
+                <div class="tree-node bg-amber-300 text-indigo-950 text-sm">${dt.f1_rem}</div>
+              </div>
+              <span class="text-xs text-amber-300 font-bold mt-2">🌿 Pohon ${dt.n1}</span>
+            </div>
+
+            <!-- Pohon B -->
+            <div class="flex flex-col items-center">
+              <div class="tree-node shadow-lg mb-1">${dt.n2}</div>
+              <div class="w-12 h-0.5 bg-amber-200/60 my-1"></div>
+              <div class="flex justify-between w-28">
+                <div class="tree-node bg-emerald-400 text-indigo-950 text-sm">${dt.f2_p1}</div>
+                <div class="tree-node bg-amber-300 text-indigo-950 text-sm">${dt.f2_rem}</div>
+              </div>
+              <span class="text-xs text-amber-300 font-bold mt-2">🌿 Pohon ${dt.n2}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      // Render Input Esai jika soal tipe Esai
+      if (q.isEssay) {
+        treeInputContainer.classList.remove("hidden");
+        document.getElementById("input-node-val").value = "";
+        document.getElementById("input-label").innerText = q.doubleTreeData ? "Ketikkan Hasil KPK di bawah ini:" : "Isi nilai yang kosong pada Pohon Faktor di atas:";
+      } else {
+        // Render Pilihan Ganda
         optContainer.classList.remove("hidden");
         optContainer.innerHTML = "";
         q.pilihan.forEach(opt => {
@@ -562,10 +647,10 @@
       }
     }
 
-    function checkTreeAnswer() {
+    function checkEssayAnswer() {
       const input = document.getElementById("input-node-val");
       const val = parseInt(input.value);
-      if (isNaN(val)) return alert("Masukkan angka jawabanmu!");
+      if (isNaN(val)) return alert("Masukkan angka jawabanmu terlebih dahulu!");
 
       const q = state.daftarSoal[state.indeksSoal];
       const isCorrect = val === q.kunci;
@@ -608,8 +693,9 @@
         if (state.levelAktif === 1) state.skorL1 += 10;
         if (state.levelAktif === 2) state.skorL2 += 10;
         if (state.levelAktif === 3) state.skorL3 += 10;
+        if (state.levelAktif === 4) state.skorL4 += 10;
 
-        feedbackExplain.innerText = "Luar biasa! Analisis faktormu sangat tepat.";
+        feedbackExplain.innerText = "Luar biasa! Analisis jawabanmu sangat akurat.";
       } else {
         playSFXWrong();
         feedbackBox.className = "p-4 rounded-2xl text-center space-y-3 bg-rose-950/80 border border-rose-500/50";
@@ -618,7 +704,7 @@
         
         state.jawabanSalahLevel++;
         state.isLevelFailed = true;
-        feedbackExplain.innerText = "Sayang sekali jawabanmu kurang tepat. Harus benar semua (10/10) untuk lolos level!";
+        feedbackExplain.innerText = "Sayang sekali jawabanmu kurang tepat. Harus benar semua (10/10) untuk lulus level!";
       }
 
       document.getElementById("score-display").innerText = state.totalSkor;
@@ -658,7 +744,7 @@
         statusLbl.innerText = `Lulus Level ${state.levelAktif}!`;
         statusLbl.className = "font-pop text-xl text-emerald-400";
 
-        if (state.levelAktif < 3) {
+        if (state.levelAktif < 4) {
           if (state.maxUnlockedLevel < state.levelAktif + 1) {
             state.maxUnlockedLevel = state.levelAktif + 1;
           }
@@ -671,7 +757,7 @@
         } else {
           icon.innerText = "👑";
           title.innerText = "JUARA PETUALANGAN KELIPATAN!";
-          desc.innerText = "HEBAT! Kamu berhasil menyelesaikan seluruh level tanpa ada satu pun kesalahan!";
+          desc.innerText = "HEBAT LUAR BIASA! Kamu berhasil menuntaskan SELURUH Level (1 s/d 4) tanpa ada satu pun kesalahan!";
           btnAction.innerText = "🏠 Kembali ke Menu Utama";
         }
       } else {
@@ -690,16 +776,17 @@
     function handleResultAction() {
       document.getElementById("screen-result").classList.add("hidden");
 
-      if (!state.isLevelFailed && state.levelAktif < 3) {
+      if (!state.isLevelFailed && state.levelAktif < 4) {
         state.levelAktif++;
         document.getElementById("screen-game").classList.remove("hidden");
         generateLevelQuestions();
       } else {
-        // Kembali / Ulang ke Level 1
+        // Ulang ke Level 1
         state.totalSkor = 0;
         state.skorL1 = 0;
         state.skorL2 = 0;
         state.skorL3 = 0;
+        state.skorL4 = 0;
         state.levelAktif = 1;
         document.getElementById("score-display").innerText = "0";
         document.getElementById("screen-login").classList.remove("hidden");
@@ -720,6 +807,7 @@
         skorMisi1: state.skorL1,
         skorMisi2: state.skorL2,
         skorMisi3: state.skorL3,
+        skorMisi4: state.skorL4,
         status: isPassed ? `Lulus Level ${state.levelAktif}` : `Gagal di Level ${state.levelAktif}`
       };
 
