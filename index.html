@@ -43,7 +43,7 @@
       background: rgba(255, 255, 255, 0.05);
       border: 2px dashed rgba(56, 189, 248, 0.4);
       border-radius: 12px;
-      padding: 6px;
+      padding: 8px;
       display: flex;
       flex-wrap: wrap;
       gap: 4px;
@@ -62,7 +62,7 @@
 </head>
 <body class="p-4 md:p-8 flex justify-center items-center relative">
 
-  <!-- TOMBOL MUSIK BAGKGROUND (MUTE/UNMUTE) -->
+  <!-- TOMBOL MUSIK BACKGROUND & SOUND EFFECT -->
   <button id="btn-audio" onclick="toggleAudio()" class="fixed top-4 right-4 z-50 bg-white/20 hover:bg-white/30 backdrop-blur-md border border-white/30 text-white p-3 rounded-full shadow-lg transition flex items-center gap-2">
     <span id="audio-icon" class="text-xl">🎵</span>
     <span id="audio-label" class="text-xs font-bold hidden md:inline">Musik: OFF</span>
@@ -103,7 +103,7 @@
           <p class="text-xs uppercase tracking-wider text-indigo-200 text-center font-bold">Pilih Level Misi:</p>
           
           <button id="btn-lvl-1" onclick="selectLevel(1)" 
-            class="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition">
+            class="w-full p-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold rounded-2xl shadow-md flex justify-between items-center transition cursor-pointer">
             <div class="text-left">
               <span class="font-pop text-lg block text-amber-300">Level 1: Pemfaktoran Kubus & Kelipatan</span>
               <span class="text-xs text-emerald-100">10 Soal • Visual Blok Kubus</span>
@@ -313,7 +313,7 @@
       }
     }
 
-    // --- GAME LOGIC ---
+    // --- MATH LOGIC ---
     const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
     const lcm = (a, b) => (a * b) / gcd(a, b);
     const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
@@ -397,13 +397,13 @@
             const wrong3 = (groups + 1) * cubesPerGroup;
 
             state.daftarSoal.push({
-              teks: `Terdapat **${groups} kelompok** kubus, dimana masing-masing kelompok berisi **${cubesPerGroup} kubus**. Berapakah total kubus yang ada (faktor **${groups} × ${cubesPerGroup}**)?`,
+              teks: `Terdapat **${groups} kelompok** kubus, dimana masing-masing kelompok berisi **${cubesPerGroup} kubus**. Berapakah total kubus yang ada (faktor dari total ini adalah **${groups} dan ${cubesPerGroup}**)?`,
               cubeData: { groups, cubesPerGroup },
               pilihan: shuffle(Array.from(new Set([totalCubes, wrong1, wrong2, wrong3])).slice(0, 4)),
               kunci: totalCubes
             });
           } else {
-            // Kelipatan
+            // Kelipatan Dasar
             const base = randomInt(2, 9);
             const mult = base * randomInt(2, 8);
             const wrong1 = mult + 1;
